@@ -12,6 +12,8 @@
     "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src/",
+    "postinstall": "electron-rebuild",
+    "rebuild-node-hid": "cd node_modules/node-hid && node-gyp rebuild --target=$(npx electron --version) --arch=arm64 --dist-url=https://electronjs.org/headers",
     "electron:start": "electron-forge start",
     "electron:package": "electron-forge package",
     "electron:make": "electron-forge make"
@@ -21,6 +23,7 @@
     "@vueuse/core": "^10.5.0",
     "dualsense.js": "file:libs/dualsense.js",
     "electron-squirrel-startup": "^1.0.1",
+    "node-hid": "^3.1.0",
     "pinia": "^2.1.7",
     "typed-event-target": "^3.4.0",
     "vue": "^3.3.4",
@@ -47,6 +50,7 @@
     "@vitejs/plugin-vue": "^4.3.4",
     "@vue/tsconfig": "^0.4.0",
     "electron": "^30.0.8",
+    "electron-rebuild": "^3.2.9",
     "npm-run-all2": "^6.0.6",
     "sass": "^1.69.3",
     "typescript": "^5.2.2",
@@ -57,7 +61,12 @@
   },
   "config": {
     "forge": {
-      "packagerConfig": {},
+      "packagerConfig": {
+        "arch": [
+          "x64",
+          "arm64"
+        ]
+      },
       "makers": [
         {
           "name": "@electron-forge/maker-deb",

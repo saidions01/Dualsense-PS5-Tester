@@ -1,7 +1,7 @@
-const { app, BrowserWindow } = require('electron');
-const path = require('path');
-const url = require('url');
-// const HID = require('node-hid')
+const { app, BrowserWindow, ipcMain } = require('electron')
+const path = require('path')
+const url = require('url')
+const { startDetection } = require('./dualsense-detection')
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -12,42 +12,42 @@ function createWindow() {
       contextIsolation: true,
       enableRemoteModule: false
     }
-  });
+  })
 
-  // Load the index.html file from the dist directory
   mainWindow.loadURL(
     url.format({
       pathname: path.join(app.getAppPath(), 'dist', 'index.html'),
       protocol: 'file:',
       slashes: true
     })
-  );
+  )
 
-  // Detect DualSense connection
-//   const detectDualSense = () => {
-//     const devices = HID.devices()
-//     const dualSense = devices.find(device => device.vendorId === 1356 && device.productId === 3302) // Example vendorId and productId, you may need to adjust these
-//
-//     if (dualSense) {
-//       mainWindow.webContents.send('dualsense-connected', dualSense)
-//     } else {
-//       mainWindow.webContents.send('dualsense-disconnected')
-//     }
-//   }
+  mainWindow.webContents.openDevTools() // Open DevTools
 
-  //setInterval(detectDualSense, 1000) // Check every second
+  // Start DualSense detection
+  startDetection(1000, (connected, dualsense) => {
+    console.log("=================");
+    console.log("= connected", connected);
+    console.log("= dualsense", dualsense);
+
+    if (connected) {
+      mainWindow.webContents.send('dualsense-connected', dualsense)
+    } else {
+      mainWindow.webContents.send('dualsense-disconnected')
+    }
+  })
 }
 
-app.on('ready', createWindow);
+app.on('ready', createWindow)
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-    app.quit();
+    app.quit()
   }
-});
+})
 
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
+    createWindow()
   }
-});
+})

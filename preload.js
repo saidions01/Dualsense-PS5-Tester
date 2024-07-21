@@ -1,9 +1,10 @@
-// preload.js
-window.addEventListener('DOMContentLoaded', () => {
-  const { contextBridge, ipcRenderer } = require('electron')
+const { contextBridge, ipcRenderer } = require('electron')
 
-  contextBridge.exposeInMainWorld('electron', {
-    onDualSenseConnected: (callback) => ipcRenderer.on('dualsense-connected', callback),
-    onDualSenseDisconnected: (callback) => ipcRenderer.on('dualsense-disconnected', callback)
-  })
-});
+contextBridge.exposeInMainWorld('electron', {
+  receive: (channel, func) => {
+    const validChannels = ['dualsense-connected', 'dualsense-disconnected']
+    if (validChannels.includes(channel)) {
+      ipcRenderer.on(channel, (event, ...args) => func(...args))
+    }
+  }
+})

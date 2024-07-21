@@ -1,12 +1,10 @@
 import { defineStore } from 'pinia'
-import { computed, onMounted, ref } from 'vue'
+import { computed } from 'vue'
 import { useColorMode } from '@vueuse/core'
 export const usePageStore = defineStore('page', () => {
   const { store: currentColorMode, system: systemColorMode } = useColorMode({
     disableTransition: !!document.startViewTransition
   })
-
-  const isWebHIDSupported = ref(false)
 
   const colorModeState = computed(() => {
     if (currentColorMode.value === 'auto') {
@@ -16,14 +14,9 @@ export const usePageStore = defineStore('page', () => {
     }
   }, {})
 
-  onMounted(() => {
-    isWebHIDSupported.value = 'hid' in navigator
-  })
-
   return {
     currentColorMode,
     systemColorMode,
-    colorModeState,
-    isWebHIDSupported
+    colorModeState
   }
 })

@@ -2,39 +2,28 @@
 import { storeToRefs } from 'pinia';
 import MainFooter from './components/MainFooter.vue';
 import MainHeader from './components/MainHeader.vue';
-import { usePageStore } from './store/page';
 import ConnectPanel from './components/ConnectPanel.vue';
 import InfoPanel from './components/InfoPanel.vue';
 import { useDualSenseStore } from './store/dualsense';
 import OutputPanel from './components/OutputPanel.vue';
 
-const dualsenseStore = useDualSenseStore()
-const pageStore = usePageStore()
-const { isWebHIDSupported } = storeToRefs(pageStore)
+const dualsenseStore = useDualSenseStore();
+const { isConnected } = storeToRefs(dualsenseStore);
 </script>
 
 <template>
   <MainHeader />
 
   <main>
-    <template v-if="isWebHIDSupported">
-      <div class="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-3 min-h-[var(--min-height)]">
-        <div class="flex flex-col gap-3 items-start">
-          <ConnectPanel />
-          <OutputPanel v-if="dualsenseStore.isConnected" />
-        </div>
-        <div class="dou-sc-container">
-          <InfoPanel />
-        </div>
+    <div class="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-3 min-h-[var(--min-height)]">
+      <div class="flex flex-col gap-3 items-start">
+        <ConnectPanel />
+        <OutputPanel v-if="isConnected" />
       </div>
-    </template>
-    <template v-else>
-      <div class="h-[var(--min-height)] flex flex-col items-center justify-center">
-        <div class="i-mingcute-confused-line text-5xl"></div>
-        <p class="text-xl">Your browser does not support WebHID</p>
-        <p class="text-base">Try to use the latest version of Google Chrome or Microsoft Edge</p>
+      <div class="dou-sc-container">
+        <InfoPanel />
       </div>
-    </template>
+    </div>
   </main>
   <MainFooter />
 </template>
