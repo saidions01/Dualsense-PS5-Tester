@@ -1,0 +1,60 @@
+{
+  "application": {
+      "name": "Probador DualSense"
+  },
+  "locales": {
+      "en-US": "Inglés (US)",
+      "es-ES": "Español (ES)"
+  },
+  "common": {
+      "tips": "Consejos"
+  },
+  "connect_panel": {
+      "tips": "Conecta el DualSense a tu computadora usando un <b>cable USB</b> o <b>Bluetooth</b>, luego haz clic en el botón \"Conectar\" abajo.",
+      "connect": "Conectar",
+      "not_connected": "No conectado",
+      "connected": "Conectado",
+      "report_time": "Tiempo de informe",
+      "battery_level": "Nivel de batería",
+      "battery_charging_state": "Estado de carga",
+      "battery_level_charging": "Cargando",
+      "battery_level_not_charging": "No cargando",
+      "headphone_connect_state": "Auriculares"
+  },
+  "info_panel": {
+      "tips": "Por favor, conecta tu DualSense primero",
+      "title_buttons": "Botones Básicos",
+      "title_accelerometer": "Acelerómetro",
+      "title_gyroscope": "Giroscopio",
+      "pitch": "Inclinación",
+      "yaw": "Guiñada",
+      "roll": "Balanceo"
+  },
+  "output_panel": {
+      "mic_mute_led": "Luz de estado del micrófono",
+      "lightbar_color": "Color de la barra de luz",
+      "player_led": "Luz de jugador",
+      "player_led_brightness": "Brillo",
+      "player_led_brightness_high": "Alto",
+      "player_led_brightness_medium": "Medio",
+      "player_led_brightness_low": "Bajo",
+      "player_led_off": "Apagado",
+      "player_led_all": "Todos",
+      "rumble_heavy": "Vibración (fuerte)",
+      "rumble_soft": "Vibración (suave)",
+      "left_trigger_mode": "Gatillo izquierdo",
+      "right_trigger_mode": "Gatillo derecho",
+      "trigger_mode": {
+          "off": "Apagado",
+          "resistance": "resistencia",
+          "trigger": "Gatillo",
+          "auto_trigger": "Gatillo Automático"
+      },
+      "trigger_values": {
+          "start_pos": "Inicio",
+          "end_pos": "Fin",
+          "frequency": "Frecuencia",
+          "force": "Fuerza"
+      }
+  }
+}

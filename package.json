@@ -1,0 +1,77 @@
+{
+  "name": "dualsense-tester-nodejs",
+  "version": "0.0.1",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "dev": "vite",
+    "build:lib": "npm run --prefix libs/dualsense.js build",
+    "build": "run-p type-check \"build-only {@}\" --",
+    "preview": "vite preview",
+    "build-only": "vite build",
+    "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "format": "prettier --write src/",
+    "electron:start": "electron-forge start",
+    "electron:package": "electron-forge package",
+    "electron:make": "electron-forge make"
+  },
+  "dependencies": {
+    "@unocss/reset": "^0.56.5",
+    "@vueuse/core": "^10.5.0",
+    "dualsense.js": "file:libs/dualsense.js",
+    "electron-squirrel-startup": "^1.0.1",
+    "pinia": "^2.1.7",
+    "typed-event-target": "^3.4.0",
+    "vue": "^3.3.4",
+    "vue-i18n": "^9.5.0"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.4.0",
+    "@electron-forge/maker-deb": "^7.4.0",
+    "@electron-forge/maker-rpm": "^7.4.0",
+    "@electron-forge/maker-squirrel": "^7.4.0",
+    "@electron-forge/maker-zip": "^7.4.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.4.0",
+    "@electron-forge/plugin-fuses": "^7.4.0",
+    "@electron/fuses": "^1.8.0",
+    "@iconify-json/icon-park-twotone": "^1.1.10",
+    "@iconify-json/mingcute": "^1.1.10",
+    "@intlify/unplugin-vue-i18n": "^1.4.0",
+    "@tsconfig/node18": "^18.2.2",
+    "@types/node": "^18.17.17",
+    "@types/w3c-web-hid": "^1.0.4",
+    "@unocss/inspector": "^0.56.5",
+    "@unocss/transformer-directives": "^0.56.5",
+    "@unocss/transformer-variant-group": "^0.56.5",
+    "@vitejs/plugin-vue": "^4.3.4",
+    "@vue/tsconfig": "^0.4.0",
+    "electron": "^30.0.8",
+    "npm-run-all2": "^6.0.6",
+    "sass": "^1.69.3",
+    "typescript": "^5.2.2",
+    "unocss": "^0.56.5",
+    "vite": "^4.4.11",
+    "vite-plugin-pwa": "^0.16.5",
+    "vue-tsc": "^2.0.26"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {
+            "options": {
+              "description": "Your app description goes here."
+            },
+            "arch": [
+              "x64",
+              "arm64"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

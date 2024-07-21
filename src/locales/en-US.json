@@ -1,0 +1,60 @@
+{
+    "application": {
+        "name": "DualSense Tester"
+    },
+    "locales": {
+        "en-US": "English (US)",
+        "es-ES": "Spanish (ES)"
+    },
+    "common": {
+        "tips": "Tips"
+    },
+    "connect_panel": {
+        "tips": "Connect the DualSense to your computer using either a <b>USB cable</b> or <b>Bluetooth</b>, then click the \"Connect\" button below.",
+        "connect": "Connect",
+        "not_connected": "Not connected",
+        "connected": "Connected",
+        "report_time": "Report time",
+        "battery_level": "Battery level",
+        "battery_charging_state": "Charging state",
+        "battery_level_charging": "Charging",
+        "battery_level_not_charging": "Not charging",
+        "headphone_connect_state": "Headphone"
+    },
+    "info_panel": {
+        "tips": "Please connect your DualSense first",
+        "title_buttons": "Basic Buttons",
+        "title_accelerometer": "Accelerometer",
+        "title_gyroscope": "Gyroscope",
+        "pitch": "Pitch",
+        "yaw": "Yaw",
+        "roll": "Roll"
+    },
+    "output_panel": {
+        "mic_mute_led": "Mic status light",
+        "lightbar_color": "Lightbar color",
+        "player_led": "Player light",
+        "player_led_brightness": "Brightness",
+        "player_led_brightness_high": "High",
+        "player_led_brightness_medium": "Medium",
+        "player_led_brightness_low": "Low",
+        "player_led_off": "Off",
+        "player_led_all": "All",
+        "rumble_heavy": "Rumble (heavy)",
+        "rumble_soft": "Rumble (soft)",
+        "left_trigger_mode": "Left trigger",
+        "right_trigger_mode": "Right trigger",
+        "trigger_mode": {
+            "off": "Off",
+            "resistance": "resistance",
+            "trigger": "Trigger",
+            "auto_trigger": "Automatic Trigger"
+        },
+        "trigger_values": {
+            "start_pos": "Start",
+            "end_pos": "End",
+            "frequency": "Frequency",
+            "force": "Force"
+        }
+    }
+}
