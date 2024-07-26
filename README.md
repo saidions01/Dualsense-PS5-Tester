@@ -1,29 +1,33 @@
-# README #
+# ------steps------ #
+Node.js Version 18 Required
+# Update Package List #
+sudo apt-get update
 
-This README would normally document whatever steps are necessary to get your application up and running.
+# Install Essential Build Tools #
+sudo apt-get install build-essential
 
-### What is this repository for? ###
+# Install libusb Development Library #
+sudo apt-get install libusb-1.0-0-dev
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+# install libudev-dev #
+sudo apt-get install libudev-dev
 
-### How do I get set up? ###
+# Install GTK+ and ATK Libraries (this is used for creating graphical user interfaces and accessibility support) #
+sudo apt-get install libatk1.0-0 libatk1.0-dev libgdk-pixbuf2.0-0 libgdk-pixbuf2.0-dev libgtk-3-0 libgtk-3-dev
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+# Install Project Dependencies #
+npm install
 
-### Contribution guidelines ###
+# Build the Project Library #
+npm run build:lib
 
-* Writing tests
-* Code review
-* Other guidelines
+# run the project #
+npm run electron:start
 
-### Who do I talk to? ###
+# ---- to run this project on raspberry pi---- #
 
-* Repo owner or admin
-* Other community or team contact
+# build and package the project , generate .deb file #
+npm run electron:make
+
+# transfer the file to raspberry #
+scp -r out/make/deb/arm64/dualsense-tester-nodejs_0.0.1_arm64.deb  pi@ip_adr:/home/pi/
