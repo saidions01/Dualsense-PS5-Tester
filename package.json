@@ -14,9 +14,9 @@
     "format": "prettier --write src/",
     "postinstall": "electron-rebuild",
     "rebuild-node-hid": "cd node_modules/node-hid && node-gyp rebuild --target=$(npx electron --version) --arch=arm64 --dist-url=https://electronjs.org/headers",
-    "electron:start": "electron-forge start",
-    "electron:package": "electron-forge package",
-    "electron:make": "electron-forge make"
+    "electron:start": "vite build && electron-forge start",
+    "electron:package": "vite build && electron-forge package",
+    "electron:make": "vite build && electron-forge make"
   },
   "dependencies": {
     "@unocss/reset": "^0.56.5",
