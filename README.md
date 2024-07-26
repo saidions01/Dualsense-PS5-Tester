@@ -1,59 +1,106 @@
-# ------steps------ #
-Node.js Version 18 Required
-# Update Package List #
-sudo apt-get update
+# Project Setup and Installation Guide
 
-# Install Essential Build Tools #
-sudo apt-get install build-essential
+## Prerequisites
 
-# Install libusb Development Library #
-sudo apt-get install libusb-1.0-0-dev
+- **Node.js Version 18** is required.
 
-# install libudev-dev #
-sudo apt-get install libudev-dev
+## Setup Instructions
 
-# Install GTK+ and ATK Libraries (this is used for creating graphical user interfaces and accessibility support) #
-sudo apt-get install libatk1.0-0 libatk1.0-dev libgdk-pixbuf2.0-0 libgdk-pixbuf2.0-dev libgtk-3-0 libgtk-3-dev
+### On Your Development Machine
 
-# Install Project Dependencies #
-npm install
+1. **Update Package List**
+    ```bash
+    sudo apt-get update
+    ```
 
-# Build the Project Library #
-npm run build:lib
+2. **Install Essential Build Tools**
+    ```bash
+    sudo apt-get install build-essential
+    ```
 
-# run the project #
-npm run electron:start
+3. **Install libusb Development Library**
+    ```bash
+    sudo apt-get install libusb-1.0-0-dev
+    ```
 
-# ---- to run this project on raspberry pi---- #
+4. **Install libudev Development Library**
+    ```bash
+    sudo apt-get install libudev-dev
+    ```
 
-# build and package the project , generate .deb file #
-npm run electron:make
+5. **Install GTK+ and ATK Libraries**  
+   *(For creating graphical user interfaces and accessibility support)*
+    ```bash
+    sudo apt-get install libatk1.0-0 libatk1.0-dev libgdk-pixbuf2.0-0 libgdk-pixbuf2.0-dev libgtk-3-0 libgtk-3-dev
+    ```
 
-# transfer the file to raspberry #
-scp -r out/make/deb/arm64/dualsense-tester-nodejs_0.0.1_arm64.deb  pi@ip_adr:/home/pi/
+6. **Install Project Dependencies**
+    ```bash
+    npm install
+    ```
 
-nodejs version 18 required on raspberry
+7. **Build the Project Library**
+    ```bash
+    npm run build:lib
+    ```
 
-# on raspberry , update package  list #
-sudo apt update
+8. **Run the Project**
+    ```bash
+    npm run electron:start
+    ```
 
-# Install essential build tools and dependencies #
-sudo apt install build-essential libudev-dev
+### On Raspberry Pi
 
-# Install libusb development files #
-sudo apt install build-essential libudev-dev libusb-dev
+1. **Build and Package the Project**  
+   *(Generates a .deb file)*
+    ```bash
+    npm run electron:make
+    ```
 
-# Install node-hid package #
-npm install node-hid
+2. **Transfer the File to Raspberry Pi**
+    ```bash
+    scp -r out/make/deb/arm64/dualsense-tester-nodejs_0.0.1_arm64.deb pi@ip_adr:/home/pi/
+    ```
 
-# Install node-gyp (used for compiling native add-ons for Node.js) #
-sudo npm install -g node-gyp
+3. **On Raspberry Pi**
 
-cd node_modules/node-hid
+    - **Update Package List**
+        ```bash
+        sudo apt update
+        ```
 
-# Build the native module #
-npm run build
+    - **Install Essential Build Tools and Dependencies**
+        ```bash
+        sudo apt install build-essential libudev-dev
+        ```
 
-# Copy the built module to the projects resources #
-sudo cp node-modules/node-hid/build/Release/HID_hidraw.node /usr/lib/dualsense-tester-nodejs/resources/app/node-modules/node-hid/build/Release
+    - **Install libusb Development Files**
+        ```bash
+        sudo apt install libusb-dev
+        ```
 
+    - **Install `node-hid` Package**
+        ```bash
+        npm install node-hid
+        ```
+
+    - **Install `node-gyp`**  
+      *(For compiling native add-ons for Node.js)*
+        ```bash
+        sudo npm install -g node-gyp
+        ```
+
+    - **Build the Native Module**
+        ```bash
+        cd node_modules/node-hid
+        npm run build
+        ```
+
+    - **Copy the Built Module to the Project's Resources**
+        ```bash
+        sudo cp node_modules/node-hid/build/Release/HID_hidraw.node /usr/lib/dualsense-tester-nodejs/resources/app/node_modules/node-hid/build/Release
+        ```
+
+---
+
+Feel free to copy and paste this styled README into your documentation!
