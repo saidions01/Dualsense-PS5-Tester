@@ -6,7 +6,7 @@
 
 ## Setup Instructions
 
-### On Your Development Machine
+### On Your Development Environment
 
 1. **Update Package List**
     ```bash
@@ -49,58 +49,54 @@
     npm run electron:start
     ```
 
-### On Raspberry Pi
-
-1. **Build and Package the Project**  
+9. **Build and Package the Project**  
    *(Generates a .deb file)*
     ```bash
     npm run electron:make
     ```
 
-2. **Transfer the File to Raspberry Pi**
+10. **Transfer the File to Raspberry Pi**
     ```bash
     scp -r out/make/deb/arm64/dualsense-tester-nodejs_0.0.1_arm64.deb pi@ip_adr:/home/pi/
     ```
 
-3. **On Raspberry Pi**
+### On Raspberry Pi
 
-    - **Update Package List**
-        ```bash
-        sudo apt update
-        ```
+1. **Update Package List**
+    ```bash
+    sudo apt update
+    ```
 
-    - **Install Essential Build Tools and Dependencies**
-        ```bash
-        sudo apt install build-essential libudev-dev
-        ```
+2. **Install Essential Build Tools and Dependencies**
+    ```bash
+    sudo apt install build-essential libudev-dev
+    ```
 
-    - **Install libusb Development Files**
-        ```bash
-        sudo apt install libusb-dev
-        ```
+3. **Install libusb Development Files**
+    ```bash
+    sudo apt install libusb-dev
+    ```
 
-    - **Install `node-hid` Package**
-        ```bash
-        npm install node-hid
-        ```
+4. **Install `node-hid` Package**
+    ```bash
+    npm install node-hid
+    ```
 
-    - **Install `node-gyp`**  
-      *(For compiling native add-ons for Node.js)*
-        ```bash
-        sudo npm install -g node-gyp
-        ```
+5. **Install `node-gyp`**  
+   *(For compiling native add-ons for Node.js)*
+    ```bash
+    sudo npm install -g node-gyp
+    ```
 
-    - **Build the Native Module**
-        ```bash
-        cd node_modules/node-hid
-        npm run build
-        ```
+6. **Build the Native Module**
+    ```bash
+    cd node_modules/node-hid
+    npm run build
+    ```
 
-    - **Copy the Built Module to the Project's Resources**
-        ```bash
-        sudo cp node_modules/node-hid/build/Release/HID_hidraw.node /usr/lib/dualsense-tester-nodejs/resources/app/node_modules/node-hid/build/Release
-        ```
+7. **Copy the Built Module to the Project's Resources**
+    ```bash
+    sudo cp node_modules/node-hid/build/Release/HID_hidraw.node /usr/lib/dualsense-tester-nodejs/resources/app/node_modules/node-hid/build/Release
+    ```
 
 ---
-
-Feel free to copy and paste this styled README into your documentation!
