@@ -31,3 +31,29 @@ npm run electron:make
 
 # transfer the file to raspberry #
 scp -r out/make/deb/arm64/dualsense-tester-nodejs_0.0.1_arm64.deb  pi@ip_adr:/home/pi/
+
+nodejs version 18 required on raspberry
+
+# on raspberry , update package  list #
+sudo apt update
+
+# Install essential build tools and dependencies #
+sudo apt install build-essential libudev-dev
+
+# Install libusb development files #
+sudo apt install build-essential libudev-dev libusb-dev
+
+# Install node-hid package #
+npm install node-hid
+
+# Install node-gyp (used for compiling native add-ons for Node.js) #
+sudo npm install -g node-gyp
+
+cd node_modules/node-hid
+
+# Build the native module #
+npm run build
+
+# Copy the built module to the projects resources #
+sudo cp node-modules/node-hid/build/Release/HID_hidraw.node /usr/lib/dualsense-tester-nodejs/resources/app/node-modules/node-hid/build/Release
+
