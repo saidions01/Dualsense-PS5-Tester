@@ -49,3 +49,7 @@ Thumbs.db
 *.mov
 *.wmv
 
+*.Identifier
+
+libs/node-hid/current
+
