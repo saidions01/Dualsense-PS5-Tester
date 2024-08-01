@@ -33,7 +33,6 @@
   "license": "(MIT OR X11)",
   "dependencies": {
     "node-addon-api": "^3.2.1",
-    "node-gyp": "^10.2.0",
     "pkg-prebuilds": "^1.0.0"
   },
   "devDependencies": {
