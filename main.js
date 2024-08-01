@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, Menu } = require('electron')
 const path = require('path')
 const url = require('url')
 const { startDetection } = require('./dualsense-detection')
@@ -21,6 +21,9 @@ function createWindow() {
       slashes: true
     })
   )
+
+  // Hide the menu bar
+  Menu.setApplicationMenu(null)
 
   mainWindow.webContents.openDevTools() // Open DevTools
 
