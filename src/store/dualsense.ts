@@ -19,50 +19,44 @@ export const useDualSenseStore = defineStore('dualsense', () => {
   const state = ref<DualSenseState>({} as DualSenseState)
   const output = reactive({})
 
-  const initializeDualSense = () => {
-    const ds = new DualSense({ persistCalibration: true })
-    dualsense.value = ds
-    state.value = ds.state
-    Object.assign(output, ds.output)
+  const initializeDualSense = async () => {
+    const ds = await window.electron.getDualSense()
+    if (ds) {
+      dualsense.value = ds
+      state.value = ds.state
+      Object.assign(output, ds.output)
 
-    watch(output, (newOutput) => {
-      if (dualsense.value) {
-        dualsense.value.output = newOutput
-      }
-    })
-
-    ds.addEventListener('connected', () => {
-      isConnected.value = true
-    })
-
-    ds.addEventListener('disconnected', () => {
-      isConnected.value = false
-    })
-
-    const updateState = (detail: DualSenseState) => {
-      state.value = { ...detail }
+      watch(output, (newOutput) => {
+        if (dualsense.value) {
+          dualsense.value.output = newOutput
+        }
+      })
     }
-
-    const throttledUpdateState = throttle(updateState, 10)
-
-    ds.addEventListener('state-change', ({ detail }: { detail: DualSenseState }) => {
-      throttledUpdateState(detail)
-    })
   }
 
-  if (window.electron) {
-    window.electron.receive('dualsense-connected', (device) => {
-      console.log('DualSense connected message received', device)
-      initializeDualSense()
-      isConnected.value = true
-    })
 
-    window.electron.receive('dualsense-disconnected', () => {
-      console.log('DualSense disconnected message received')
-      dualsense.value = null
-      isConnected.value = false
-    })
+  window.electron.receive('ds-connected', () => {
+    console.log("================ ds-connected")
+    isConnected.value = true
+  })
+
+  window.electron.receive('ds-disconnected', () => {
+    console.log("================ ds-disconnected")
+    isConnected.value = false
+  })
+
+  const updateState = (detail: DualSenseState) => {
+    state.value = { ...detail }
   }
+
+  const throttledUpdateState = throttle(updateState, 10)
+
+  window.electron.receive('ds-state-change', ({ detail }: { detail: DualSenseState }) => {
+    console.log("================ ds-state-change", detail)
+    throttledUpdateState(detail)
+  })
+
+  initializeDualSense()
 
   return {
     dualsense,

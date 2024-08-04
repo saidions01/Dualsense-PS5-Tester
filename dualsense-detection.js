@@ -1,4 +1,4 @@
-const HID = require('node-hid')
+const HID = require('node-hid');
 
 function detectDualSense(callback) {
   const devices = HID.devices()
@@ -35,4 +35,4 @@ function startDetection(interval, callback) {
 
 module.exports = {
   startDetection
-}
+};

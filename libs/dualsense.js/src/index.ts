@@ -1,8 +1,6 @@
 import {
   VENDOR_ID_SONY,
   PRODUCT_ID_DUAL_SENSE,
-  USAGE_PAGE_GENERIC_DESKTOP,
-  USAGE_ID_GD_GAME_PAD,
   DUAL_SENSE_USB_INPUT_REPORT_0x01_SIZE,
   DUAL_SENSE_BT_INPUT_REPORT_0x01_SIZE,
   DUAL_SENSE_BT_INPUT_REPORT_0x31_SIZE,
@@ -18,21 +16,21 @@ import { fillDualSenseChecksum } from './utils/crc32'
 
 export type { DualSenseState, DualSenseInterface, DualSenseOutput }
 
-export interface DualSenseOptions {}
+export interface DualSenseOptions { }
 
 export class ControllerStateChangeEvent extends defineTypedCustomEvent<DualSenseState>()(
   'state-change'
-) {}
-export class ControllerConnectEvent extends defineTypedEvent('connected') {}
-export class ControllerDisconnectEvent extends defineTypedEvent('disconnected') {}
+) { }
+export class ControllerConnectEvent extends defineTypedEvent('connected') { }
+export class ControllerDisconnectEvent extends defineTypedEvent('disconnected') { }
 export type AllSupportControllerEvents =
   | ControllerStateChangeEvent
   | ControllerConnectEvent
   | ControllerDisconnectEvent
 
 export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
-  /** Internal WebHID device */
-  [PROPERTY_DEVICE]?: HIDDevice;
+  /** Internal HID device */
+  [PROPERTY_DEVICE]?: any;
 
   /** Internal Options */
   [PROPERTY_OPTIONS]: DualSenseOptions
@@ -51,25 +49,16 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
   /** Current output report */
   output: DualSenseOutput = { ...defaultOutput }
 
-  constructor(options: DualSenseOptions) {
+  /** Reference to the HID library, passed in from the main process */
+  HID: any
+
+  constructor(options: DualSenseOptions, HID: any) {
     super()
-    if (!('hid' in navigator)) {
-      throw new Error('WebHID not supported')
-    }
 
     this[PROPERTY_OPTIONS] = options
+    this.HID = HID
 
     this.#checkGrantedController()
-
-    navigator.hid.addEventListener('connect', () => this.#checkGrantedController())
-    navigator.hid.addEventListener('disconnect', ({ device }) => {
-      if (device === this[PROPERTY_DEVICE]) {
-        this.#onConnectionError()
-      }
-      this.#checkGrantedController()
-    })
-
-    this.#onRAFBound()
   }
 
   #onConnectionError() {
@@ -85,70 +74,60 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
       this.#onConnectionError()
     }
 
+    // Log available devices for debugging
+    const devices = this.HID.devices();
+    console.log('Available HID devices:', devices);
+
     // Check if we already have permissions for a DualSense device.
-    const _devices = await navigator.hid.getDevices()
-    for (const device of _devices) {
-      if (device.vendorId == VENDOR_ID_SONY && device.productId == PRODUCT_ID_DUAL_SENSE) {
-        if (!device.opened) {
-          await device.open()
-          if (!device.opened) continue
-        }
+    const deviceInfo = this.HID.devices().find((device: any) => device.vendorId === VENDOR_ID_SONY && device.productId === PRODUCT_ID_DUAL_SENSE);
+
+    if (deviceInfo && deviceInfo.path) {
+      try {
+        const device = new this.HID.HID(deviceInfo.path);
 
         this.dispatchEvent(new ControllerConnectEvent())
         this[PROPERTY_DEVICE] = device
         this.#checkConnectInterface(this[PROPERTY_DEVICE])
-        this[PROPERTY_DEVICE].oninputreport = this.#handleControllerReport.bind(this)
-        return
+        this[PROPERTY_DEVICE].on('data', this.#handleControllerReport.bind(this))
+        this[PROPERTY_DEVICE].on('error', this.#onConnectionError.bind(this))
+      } catch (error) {
+        console.error('Failed to open HID device:', error);
+        this.dispatchEvent(new ControllerDisconnectEvent())
       }
+    } else {
+      this.dispatchEvent(new ControllerDisconnectEvent())
     }
   }
 
   /**
    * Check connect interface
    */
-  #checkConnectInterface(device: HIDDevice) {
-    for (const c of device.collections) {
-      if (c.usagePage != USAGE_PAGE_GENERIC_DESKTOP || c.usage != USAGE_ID_GD_GAME_PAD) {
-        continue
-      }
-
-      // Compute the maximum input report byte length and compare against known values.
-      const maxInputReportBytes = c.inputReports!.reduce((max, report) => {
-        return Math.max(
-          max,
-          report.items!.reduce((sum, item) => {
-            return sum + item.reportSize! * item.reportCount!
-          }, 0)
-        )
-      }, 0)
-      if (maxInputReportBytes == 504) {
-        this.state.interface = DualSenseInterface.USB
-      } else if (maxInputReportBytes == 616) {
-        this.state.interface = DualSenseInterface.Bluetooth
-      }
-    }
+  #checkConnectInterface(device: any) {
+    if (device)
+      this.state.interface = DualSenseInterface.USB
   }
 
   async requestDevice() {
     try {
-      await navigator.hid.requestDevice({
-        filters: [
-          // DualSense
-          {
-            vendorId: VENDOR_ID_SONY,
-            productId: PRODUCT_ID_DUAL_SENSE,
-            usagePage: USAGE_PAGE_GENERIC_DESKTOP,
-            usage: USAGE_ID_GD_GAME_PAD
-          }
-          // TODO: DualSense Edge
-        ]
-      })
-      await this.#checkGrantedController()
+      // Simulate device request
+      const deviceInfo = this.HID.devices().find((device: any) => device.vendorId === VENDOR_ID_SONY && device.productId === PRODUCT_ID_DUAL_SENSE);
+
+      if (deviceInfo && deviceInfo.path) {
+        const device = new this.HID.HID(deviceInfo.path);
+
+        this.dispatchEvent(new ControllerConnectEvent())
+        this[PROPERTY_DEVICE] = device
+        this.#checkConnectInterface(this[PROPERTY_DEVICE])
+        this[PROPERTY_DEVICE].on('data', this.#handleControllerReport.bind(this))
+        this[PROPERTY_DEVICE].on('error', this.#onConnectionError.bind(this))
+        return true;
+      } else {
+        return false;
+      }
     } catch (error) {
       console.error(error)
       return false
     }
-    return true
   }
 
   /**
@@ -156,11 +135,12 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
    *
    * This function is called internally by the library each time a report is received.
    *
-   * @param report - HID Report sent by the controller.
+   * @param data - HID Report sent by the controller.
    */
-  #handleControllerReport(event: HIDInputReportEvent) {
-    const { data: report, reportId } = event
-    this.state.timestamp = event.timeStamp
+  #handleControllerReport(data: Buffer) {
+    const reportId = data[0]
+    const report = new DataView(data.buffer.slice(1)) // Skip reportId
+    this.state.timestamp = Date.now()
     this.lastReport = report.buffer
 
     if (this.state.interface == DualSenseInterface.USB) {
@@ -188,15 +168,9 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
     const axes3 = report.getUint8(3)
     const axes4 = report.getUint8(4)
     const axes5 = report.getUint8(5)
-    // const seqNum = report.getUint8(6)
     const buttons0 = report.getUint8(7)
     const buttons1 = report.getUint8(8)
     const buttons2 = report.getUint8(9)
-    // const buttons3 = report.getUint8(10)
-    // const timestamp0 = report.getUint8(11)
-    // const timestamp1 = report.getUint8(12)
-    // const timestamp2 = report.getUint8(13)
-    // const timestamp3 = report.getUint8(14)
     const gyroX = report.getInt16(15, true)
     const gyroY = report.getInt16(17, true)
     const gyroZ = report.getInt16(19, true)
@@ -205,11 +179,6 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
     const accelY = report.getInt16(23, true)
     const accelZ = report.getInt16(25, true)
 
-    // const sensorTimestamp0 = report.getUint8(27)
-    // const sensorTimestamp1 = report.getUint8(28)
-    // const sensorTimestamp2 = report.getUint8(29)
-    // const sensorTimestamp3 = report.getUint8(30)
-    // byte 31?
     const touch00 = report.getUint8(32)
     const touch01 = report.getUint8(33)
     const touch02 = report.getUint8(34)
@@ -218,14 +187,9 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
     const touch11 = report.getUint8(37)
     const touch12 = report.getUint8(38)
     const touch13 = report.getUint8(39)
-    // byte 40?
-    // const r2feedback = report.getUint8(41)
-    // const l2feedback = report.getUint8(42)
-    // bytes 43-51?
     const battery0 = report.getUint8(52)
     const battery1 = report.getUint8(53)
-    // bytes 54-58?
-    // bytes 59-62 CRC32 checksum
+
     const lsx = normalizeThumbStickAxis(axes0)
     const lsy = normalizeThumbStickAxis(axes1)
     const rsx = normalizeThumbStickAxis(axes2)
@@ -278,9 +242,6 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
     this.state.buttons.l2 = l2
     this.state.buttons.r2 = r2
 
-    // triggerL2Text.value = Math.round(l2axis * 100) + "%";
-    // triggerR2Text.value = Math.round(r2axis * 100) + "%";
-
     this.state.axes.l2 = l2axis
     this.state.axes.r2 = r2axis
 
@@ -325,12 +286,6 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
     this.state.axes.accelX = accelX
     this.state.axes.accelY = accelY
     this.state.axes.accelZ = accelZ
-
-    // TODO: add support for trigger feedback
-    // l2feedback = l2feedback & 0x10;
-    // l2feedback value = l2feedback & 0x0f;
-    // r2feedback = r2feedback & 0x10;
-    // r2feedback value = r2feedback & 0x0f;
 
     this.state.battery.charging = batteryCharging
     this.state.battery.full = batteryFull
@@ -430,22 +385,15 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
   #handleBluetoothInputReport31(report: DataView) {
     if (report.byteLength != DUAL_SENSE_BT_INPUT_REPORT_0x31_SIZE) return
 
-    // byte 0?
     const axes0 = report.getUint8(1)
     const axes1 = report.getUint8(2)
     const axes2 = report.getUint8(3)
     const axes3 = report.getUint8(4)
     const axes4 = report.getUint8(5)
     const axes5 = report.getUint8(6)
-    // byte 7?
     const buttons0 = report.getUint8(8)
     const buttons1 = report.getUint8(9)
     const buttons2 = report.getUint8(10)
-    // byte 11?
-    // const timestamp0 = report.getUint8(12)
-    // const timestamp1 = report.getUint8(13)
-    // const timestamp2 = report.getUint8(14)
-    // const timestamp3 = report.getUint8(15)
     const gyroX = report.getInt16(16, true)
     const gyroY = report.getInt16(18, true)
     const gyroZ = report.getInt16(20, true)
@@ -453,7 +401,6 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
     const accelX = report.getInt16(22, true)
     const accelY = report.getInt16(24, true)
     const accelZ = report.getInt16(26, true)
-    // bytes 28-32?
     const touch00 = report.getUint8(33)
     const touch01 = report.getUint8(34)
     const touch02 = report.getUint8(35)
@@ -462,13 +409,8 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
     const touch11 = report.getUint8(38)
     const touch12 = report.getUint8(39)
     const touch13 = report.getUint8(40)
-    // byte 41?
-    // const r2feedback = report.getUint8(42)
-    // const l2feedback = report.getUint8(43)
-    // bytes 44-52?
     const battery0 = report.getUint8(53)
     const battery1 = report.getUint8(54)
-    // bytes 55-76?
 
     const lsx = normalizeThumbStickAxis(axes0)
     const lsy = normalizeThumbStickAxis(axes1)
@@ -567,12 +509,6 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
     this.state.axes.accelY = accelY
     this.state.axes.accelZ = accelZ
 
-    // TODO: add support for trigger feedback
-    // l2feedback = l2feedback & 0x10;
-    // l2feedback value = l2feedback & 0x0f;
-    // r2feedback = r2feedback & 0x10;
-    // r2feedback value = r2feedback & 0x0f;
-
     this.state.battery.charging = batteryCharging
     this.state.battery.full = batteryFull
     this.state.battery.level = batteryLevelPercent
@@ -590,7 +526,7 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
   #setOutputReportDataBound = this.#setOutputReportData.bind(this)
 
   async #onRAF() {
-    window.requestAnimationFrame(this.#onRAFBound)
+    setImmediate(this.#onRAFBound)
     if (this[PROPERTY_DEVICE]) {
       const sent = await this.#sendOutputReportBound()
       if (!sent) this.#onConnectionError()
@@ -624,7 +560,7 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
 
     // Send output report
     try {
-      await this[PROPERTY_DEVICE]!.sendReport(reportId, reportData)
+      this[PROPERTY_DEVICE].write([reportId, ...reportData])
     } catch (error) {
       return false
     }
@@ -658,7 +594,7 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
 
     // Send output report
     try {
-      await this[PROPERTY_DEVICE]!.sendReport(reportId, reportData)
+      this[PROPERTY_DEVICE].write([reportId, ...reportData])
     } catch (error) {
       return false
     }

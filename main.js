@@ -1,7 +1,8 @@
 const { app, BrowserWindow, ipcMain, Menu } = require('electron')
 const path = require('path')
 const url = require('url')
-const { startDetection } = require('./dualsense-detection')
+const { DualSense } = require('dualsense.js')
+const HID = require('node-hid')
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -21,24 +22,33 @@ function createWindow() {
       slashes: true
     })
   )
-
-  // Hide the menu bar
-  Menu.setApplicationMenu(null)
-
+  // Mode DEV
+  Menu.setApplicationMenu(null) // Hide the menu bar
   mainWindow.webContents.openDevTools() // Open DevTools
 
-  // Start DualSense detection
-  startDetection(1000, (connected, dualsense) => {
-    console.log("=================");
-    console.log("= connected", connected);
-    console.log("= dualsense", dualsense);
 
-    if (connected) {
-      mainWindow.webContents.send('dualsense-connected', dualsense)
-    } else {
-      mainWindow.webContents.send('dualsense-disconnected')
-    }
+  const ds = new DualSense({ persistCalibration: true }, HID)
+
+  ds.addEventListener('connected', () => {
+    console.log("MAIN ---------------------- connected")
+    mainWindow.webContents.send('ds-connected')
   })
+
+  ds.addEventListener('disconnected', () => {
+    console.log("MAIN ---------------------- disconnected")
+    mainWindow.webContents.send('ds-disconnected')
+  })
+
+  ds.addEventListener('state-change', (state) => {
+    console.log("MAIN ---------------------- state-change")
+    mainWindow.webContents.send('ds-state-change', { detail: state })
+  })
+
+  ipcMain.handle('get-dualsense', () => {
+    console.log("MAIN ---------------------- state-change", ds)
+    return { state: ds.state, output: ds.output }
+  })
+
 }
 
 app.on('ready', createWindow)
