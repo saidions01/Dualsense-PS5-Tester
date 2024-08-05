@@ -52,7 +52,7 @@ export const useDualSenseStore = defineStore('dualsense', () => {
   const throttledUpdateState = throttle(updateState, 10)
 
   window.electron.receive('ds-state-change', ({ detail }: { detail: DualSenseState }) => {
-    console.log("================ ds-state-change", detail)
+    // console.log("================ ds-state-change", detail)
     throttledUpdateState(detail)
   })
 

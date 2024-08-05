@@ -8,8 +8,8 @@ import {
   PROPERTY_OPTIONS
 } from './constants'
 
+import { EventEmitter } from 'events';
 import { DualSenseInterface, DualSenseState, defaultState } from './gadgets/state'
-import { TypedEventTarget, defineTypedCustomEvent, defineTypedEvent } from 'typed-event-target'
 import { normalizeButton, normalizeThumbStickAxis, normalizeTriggerAxis } from './utils/controller'
 import { DualSenseOutput, defaultOutput } from './gadgets/output'
 import { fillDualSenseChecksum } from './utils/crc32'
@@ -18,17 +18,7 @@ export type { DualSenseState, DualSenseInterface, DualSenseOutput }
 
 export interface DualSenseOptions { }
 
-export class ControllerStateChangeEvent extends defineTypedCustomEvent<DualSenseState>()(
-  'state-change'
-) { }
-export class ControllerConnectEvent extends defineTypedEvent('connected') { }
-export class ControllerDisconnectEvent extends defineTypedEvent('disconnected') { }
-export type AllSupportControllerEvents =
-  | ControllerStateChangeEvent
-  | ControllerConnectEvent
-  | ControllerDisconnectEvent
-
-export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
+export class DualSense extends EventEmitter {
   /** Internal HID device */
   [PROPERTY_DEVICE]?: any;
 
@@ -52,6 +42,8 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
   /** Reference to the HID library, passed in from the main process */
   HID: any
 
+  isConnected = false
+
   constructor(options: DualSenseOptions, HID: any) {
     super()
 
@@ -70,7 +62,8 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
    */
   async #checkGrantedController() {
     if (this[PROPERTY_DEVICE] && !this[PROPERTY_DEVICE].opened) {
-      this.dispatchEvent(new ControllerDisconnectEvent())
+      console.log('Device not opened, emitting disconnect event.');
+      this.emit('disconnected');
       this.#onConnectionError()
     }
 
@@ -83,19 +76,21 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
 
     if (deviceInfo && deviceInfo.path) {
       try {
+        console.log(`Attempting to open device at path: ${deviceInfo.path}`);
         const device = new this.HID.HID(deviceInfo.path);
 
-        this.dispatchEvent(new ControllerConnectEvent())
+        // this.emit('connected')
         this[PROPERTY_DEVICE] = device
         this.#checkConnectInterface(this[PROPERTY_DEVICE])
         this[PROPERTY_DEVICE].on('data', this.#handleControllerReport.bind(this))
         this[PROPERTY_DEVICE].on('error', this.#onConnectionError.bind(this))
       } catch (error) {
         console.error('Failed to open HID device:', error);
-        this.dispatchEvent(new ControllerDisconnectEvent())
+        this.emit('disconnected');
       }
     } else {
-      this.dispatchEvent(new ControllerDisconnectEvent())
+      console.log('No suitable HID device found');
+      this.emit('disconnected');
     }
   }
 
@@ -113,9 +108,9 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
       const deviceInfo = this.HID.devices().find((device: any) => device.vendorId === VENDOR_ID_SONY && device.productId === PRODUCT_ID_DUAL_SENSE);
 
       if (deviceInfo && deviceInfo.path) {
+        console.log(`Requesting device at path: ${deviceInfo.path}`);
         const device = new this.HID.HID(deviceInfo.path);
 
-        this.dispatchEvent(new ControllerConnectEvent())
         this[PROPERTY_DEVICE] = device
         this.#checkConnectInterface(this[PROPERTY_DEVICE])
         this[PROPERTY_DEVICE].on('data', this.#handleControllerReport.bind(this))
@@ -138,6 +133,12 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
    * @param data - HID Report sent by the controller.
    */
   #handleControllerReport(data: Buffer) {
+
+    if (!this.isConnected) {
+      this.emit('connected')
+      this.isConnected = true
+    }
+
     const reportId = data[0]
     const report = new DataView(data.buffer.slice(1)) // Skip reportId
     this.state.timestamp = Date.now()
@@ -292,11 +293,8 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
     this.state.battery.level = batteryLevelPercent
     this.state.headphoneConnected = headphoneConnected
 
-    this.dispatchEvent(
-      new ControllerStateChangeEvent({
-        detail: this.state
-      })
-    )
+    // Emit state change event
+    this.emit('state-change', { detail: this.state });
   }
 
   #handleBluetoothInputReport01(report: DataView) {
@@ -375,11 +373,8 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
     this.state.battery.level = NaN
     this.state.headphoneConnected = false
 
-    this.dispatchEvent(
-      new ControllerStateChangeEvent({
-        detail: this.state
-      })
-    )
+
+    this.emit('state-change', { detail: this.state })
   }
 
   #handleBluetoothInputReport31(report: DataView) {
@@ -514,11 +509,7 @@ export class DualSense extends TypedEventTarget<AllSupportControllerEvents> {
     this.state.battery.level = batteryLevelPercent
     this.state.headphoneConnected = headphoneConnected
 
-    this.dispatchEvent(
-      new ControllerStateChangeEvent({
-        detail: this.state
-      })
-    )
+    this.emit('state-change', { detail: this.state })
   }
 
   #onRAFBound = this.#onRAF.bind(this)

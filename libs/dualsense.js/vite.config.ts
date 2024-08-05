@@ -8,7 +8,7 @@ export default defineConfig({
       entry: './src/index.ts',
       name: "DualSense",
       fileName: (format) => {
-        return `${format}/dualsense.js`
+        return `${format}/dualsense.${format=='cjs' ? 'cjs' : 'js'}`
       },
       formats: ['es', 'umd', 'cjs']
     },

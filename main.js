@@ -1,8 +1,11 @@
 const { app, BrowserWindow, ipcMain, Menu } = require('electron')
 const path = require('path')
 const url = require('url')
-const { DualSense } = require('dualsense.js')
 const HID = require('node-hid')
+const { DualSense } = require('dualsense.js')
+
+let dualSenseConnected = false
+let ds = null
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -22,33 +25,47 @@ function createWindow() {
       slashes: true
     })
   )
+
   // Mode DEV
   Menu.setApplicationMenu(null) // Hide the menu bar
   mainWindow.webContents.openDevTools() // Open DevTools
 
-
-  const ds = new DualSense({ persistCalibration: true }, HID)
-
-  ds.addEventListener('connected', () => {
-    console.log("MAIN ---------------------- connected")
-    mainWindow.webContents.send('ds-connected')
+  // Register ipcMain handler only once
+  ipcMain.handle('get-dualsense', () => {
+    if (ds) {
+      console.log('MAIN ---------------------- get--dualsense', ds.state)
+      console.log('MAIN ---------------------- get--dualsense', ds.output)
+      return { state: ds.state, output: ds.output }
+    } else {
+      return { state: null, output: null }
+    }
   })
 
-  ds.addEventListener('disconnected', () => {
-    console.log("MAIN ---------------------- disconnected")
+
+  ds = new DualSense({ persistCalibration: true }, HID)
+  ds.on('connected', () => {
+    console.log('MAIN ---------------------- connected')
+    dualSenseConnected = true
+    mainWindow.webContents.send('ds-connected')
+  });
+
+  ds.on('disconnected', () => {
+    console.log('MAIN ---------------------- disconnected')
+    dualSenseConnected = false
     mainWindow.webContents.send('ds-disconnected')
   })
 
-  ds.addEventListener('state-change', (state) => {
-    console.log("MAIN ---------------------- state-change")
-    mainWindow.webContents.send('ds-state-change', { detail: state })
-  })
+  ds.on('state-change', (state) => {
+    console.log('MAIN ---------------------- state-change')
+    mainWindow.webContents.send('ds-state-change', state)
+  });
 
-  ipcMain.handle('get-dualsense', () => {
-    console.log("MAIN ---------------------- state-change", ds)
-    return { state: ds.state, output: ds.output }
-  })
-
+  // Check for DualSense connection periodically
+  setInterval(() => {
+    if (!dualSenseConnected) {
+      ds.requestDevice()
+    }
+  }, 1000)
 }
 
 app.on('ready', createWindow)

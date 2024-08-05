@@ -21,12 +21,14 @@
   "scripts": {
     "type:check": "tsc --noEmit",
     "clean": "rimraf dist",
-    "build": "npm install && npm run type:check && npm run clean && npm run build:bundle && npm run build:types",
-    "build:bundle": "vite build",
-    "build:types": "tsc -p tsconfig.types.json"
+    "build": "npm run clean && npm run build:bundle",
+    "build:bundle": "vite build"
   },
   "devDependencies": {
-    "rimraf": "^5.0.5",
-    "typed-event-target": "^1.4.1"
+    "rimraf": "^5.0.5"
+  },
+  "dependencies": {
+    "dualsense.js": "file:",
+    "events": "^3.3.0"
   }
 }
