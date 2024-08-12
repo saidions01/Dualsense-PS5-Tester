@@ -21,7 +21,7 @@
   "scripts": {
     "type:check": "tsc --noEmit",
     "clean": "rimraf dist",
-    "build": "npm run clean && npm run build:bundle",
+    "build": "npm install && npm run clean && npm run build:bundle",
     "build:bundle": "vite build"
   },
   "devDependencies": {
