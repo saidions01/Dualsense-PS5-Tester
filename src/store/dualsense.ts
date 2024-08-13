@@ -26,14 +26,20 @@ export const useDualSenseStore = defineStore('dualsense', () => {
       state.value = ds.state
       Object.assign(output, ds.output)
 
+      // Watch for changes in the output object and send them via IPC
       watch(output, (newOutput) => {
         if (dualsense.value) {
           dualsense.value.output = newOutput
         }
-      })
+        sendOutputReportToMainProcess(newOutput)
+      }, { deep: true }) // Deep watch to observe nested properties
     }
   }
 
+  const sendOutputReportToMainProcess = (newOutput: any) => {
+    console.log('Sending updated output to main process:', newOutput)
+    window.electron.sendOutputReport(JSON.parse(JSON.stringify(newOutput)))
+  }
 
   window.electron.receive('ds-connected', () => {
     console.log("================ ds-connected")

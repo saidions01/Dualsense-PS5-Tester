@@ -54,6 +54,8 @@ export class DualSense extends EventEmitter {
   }
 
   #onConnectionError() {
+    this.emit('disconnected')
+    this.isConnected = false
     this[PROPERTY_DEVICE]?.close()
   }
 
@@ -62,21 +64,19 @@ export class DualSense extends EventEmitter {
    */
   async #checkGrantedController() {
     if (this[PROPERTY_DEVICE] && !this[PROPERTY_DEVICE].opened) {
-      console.log('Device not opened, emitting disconnect event.');
-      this.emit('disconnected');
+      this.emit('disconnected')
+      this.isConnected = false
       this.#onConnectionError()
     }
 
     // Log available devices for debugging
     const devices = this.HID.devices();
-    console.log('Available HID devices:', devices);
 
     // Check if we already have permissions for a DualSense device.
     const deviceInfo = this.HID.devices().find((device: any) => device.vendorId === VENDOR_ID_SONY && device.productId === PRODUCT_ID_DUAL_SENSE);
 
     if (deviceInfo && deviceInfo.path) {
       try {
-        console.log(`Attempting to open device at path: ${deviceInfo.path}`);
         const device = new this.HID.HID(deviceInfo.path);
 
         // this.emit('connected')
@@ -86,11 +86,13 @@ export class DualSense extends EventEmitter {
         this[PROPERTY_DEVICE].on('error', this.#onConnectionError.bind(this))
       } catch (error) {
         console.error('Failed to open HID device:', error);
-        this.emit('disconnected');
+        this.emit('disconnected')
+        this.isConnected = false
       }
     } else {
       console.log('No suitable HID device found');
-      this.emit('disconnected');
+      this.emit('disconnected')
+      this.isConnected = false
     }
   }
 
@@ -108,7 +110,6 @@ export class DualSense extends EventEmitter {
       const deviceInfo = this.HID.devices().find((device: any) => device.vendorId === VENDOR_ID_SONY && device.productId === PRODUCT_ID_DUAL_SENSE);
 
       if (deviceInfo && deviceInfo.path) {
-        console.log(`Requesting device at path: ${deviceInfo.path}`);
         const device = new this.HID.HID(deviceInfo.path);
 
         this[PROPERTY_DEVICE] = device
@@ -117,10 +118,14 @@ export class DualSense extends EventEmitter {
         this[PROPERTY_DEVICE].on('error', this.#onConnectionError.bind(this))
         return true;
       } else {
+        this.emit('disconnected')
+        this.isConnected = false
         return false;
       }
     } catch (error) {
       console.error(error)
+      this.emit('disconnected')
+      this.isConnected = false
       return false
     }
   }
@@ -512,12 +517,12 @@ export class DualSense extends EventEmitter {
     this.emit('state-change', { detail: this.state })
   }
 
-  #onRAFBound = this.#onRAF.bind(this)
+  onRAFBound = this.#onRAF.bind(this)
   #sendOutputReportBound = this.#sendOutputReport.bind(this)
   #setOutputReportDataBound = this.#setOutputReportData.bind(this)
 
   async #onRAF() {
-    setImmediate(this.#onRAFBound)
+    //setImmediate(this.#onRAFBound)
     if (this[PROPERTY_DEVICE]) {
       const sent = await this.#sendOutputReportBound()
       if (!sent) this.#onConnectionError()
@@ -551,7 +556,8 @@ export class DualSense extends EventEmitter {
 
     // Send output report
     try {
-      this[PROPERTY_DEVICE].write([reportId, ...reportData])
+      const buffer = Buffer.from([reportId, ...reportData])
+      this[PROPERTY_DEVICE].write(buffer)
     } catch (error) {
       return false
     }
@@ -585,7 +591,8 @@ export class DualSense extends EventEmitter {
 
     // Send output report
     try {
-      this[PROPERTY_DEVICE].write([reportId, ...reportData])
+      const buffer = Buffer.from([reportId, ...reportData])
+      this[PROPERTY_DEVICE].write(buffer)
     } catch (error) {
       return false
     }
