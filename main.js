@@ -35,13 +35,13 @@ function createWindow() {
     console.log('MAIN ---------------------- connected')
     dualSenseConnected = true
     mainWindow.webContents.send('ds-connected')
-    startPolling() // Start polling when the device is connected
+    //startPolling() // Start polling when the device is connected
   });
 
   ds.on('disconnected', () => {
     console.log('MAIN ---------------------- disconnected')
     dualSenseConnected = false
-    stopPolling() // Stop polling when the device is disconnected
+    //stopPolling() // Stop polling when the device is disconnected
     mainWindow.webContents.send('ds-disconnected')
   })
 
@@ -52,7 +52,7 @@ function createWindow() {
   // Register ipcMain handler only once
   ipcMain.handle('get-dualsense', () => {
     if (ds) {
-      console.log('MAIN ---------------------- get--dualsense', ds.state)
+      console.log('MAIN ---------------------- get--dualsense')
       return { state: ds.state, output: ds.output }
     } else {
       return { state: null, output: null }
@@ -62,7 +62,7 @@ function createWindow() {
   // Handle output report from renderer process
   ipcMain.handle('send-output-report', async (event, outputData) => {
     try {
-      console.log('MAIN ---------------------- Received outputData:', outputData)
+      console.log('MAIN ---------------------- Received outputData:')
 
       // Ensure that the DualSense device is connected
       if (ds && ds.isConnected) {
@@ -87,22 +87,22 @@ function createWindow() {
     }
   }, 1000)
 
-  function startPolling() {
-    if (ds) {
-      const poll = async () => {
-        if (dualSenseConnected) {
-          await ds.onRAFBound()
-          setImmediate(poll) // Continue polling
-        }
-      }
-      setImmediate(poll) // Start the polling loop
-    }
-  }
-
-  function stopPolling() {
-    dualSenseConnected = false
-    // No need to explicitly stop, the loop will exit due to the check
-  }
+//   function startPolling() {
+//     if (ds) {
+//       const poll = async () => {
+//         if (dualSenseConnected) {
+//           await ds.onRAFBound()
+//           setImmediate(poll) // Continue polling
+//         }
+//       }
+//       setImmediate(poll) // Start the polling loop
+//     }
+//   }
+//
+//   function stopPolling() {
+//     dualSenseConnected = false
+//     // No need to explicitly stop, the loop will exit due to the check
+//   }
 }
 
 app.on('ready', createWindow)
