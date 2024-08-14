@@ -14,7 +14,7 @@ import LangSwitcher from './LangSwitcher.vue';
             </div>
             <div class="tools-wrapper">
                 <LangSwitcher />
-                <DarkModeSwitch />
+                <!--DarkModeSwitch /-->
             </div>
         </div>
     </header>
