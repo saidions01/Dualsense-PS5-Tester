@@ -4,6 +4,13 @@ const url = require('url')
 const HID = require('node-hid')
 const { DualSense } = require('dualsense.js')
 
+// Check if we are in development mode
+const isDev = process.env.NODE_ENV === 'development'
+
+if (!isDev) {
+  console.log = ()=> {}
+}
+
 let dualSenseConnected = false
 let ds = null
 
@@ -11,6 +18,8 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    fullscreen: !isDev, // Fullscreen mode in production
+    autoHideMenuBar: true, // Hides the menu bar
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -26,30 +35,27 @@ function createWindow() {
     })
   )
 
-  // Mode DEV
-  Menu.setApplicationMenu(null) // Hide the menu bar
-  mainWindow.webContents.openDevTools() // Open DevTools
+  if (isDev) {
+    mainWindow.webContents.openDevTools() // Open DevTools in development
+  }
 
   ds = new DualSense({ persistCalibration: true }, HID)
   ds.on('connected', () => {
     console.log('MAIN ---------------------- connected')
     dualSenseConnected = true
     mainWindow.webContents.send('ds-connected')
-    //startPolling() // Start polling when the device is connected
-  });
+  })
 
   ds.on('disconnected', () => {
     console.log('MAIN ---------------------- disconnected')
     dualSenseConnected = false
-    //stopPolling() // Stop polling when the device is disconnected
     mainWindow.webContents.send('ds-disconnected')
   })
 
   ds.on('state-change', (state) => {
     mainWindow.webContents.send('ds-state-change', state)
-  });
+  })
 
-  // Register ipcMain handler only once
   ipcMain.handle('get-dualsense', () => {
     if (ds) {
       console.log('MAIN ---------------------- get--dualsense')
@@ -59,14 +65,11 @@ function createWindow() {
     }
   })
 
-  // Handle output report from renderer process
   ipcMain.handle('send-output-report', async (event, outputData) => {
     try {
       console.log('MAIN ---------------------- Received outputData:')
 
-      // Ensure that the DualSense device is connected
       if (ds && ds.isConnected) {
-        // Send the output report to the DualSense controller
         ds.output = { ...outputData }
         return true
       }
@@ -79,30 +82,12 @@ function createWindow() {
     }
   })
 
-  // Check for DualSense connection periodically
   setInterval(() => {
     if (true /*!dualSenseConnected*/) {
       console.log('MAIN --------------------- requestDevice')
       ds.requestDevice()
     }
   }, 1000)
-
-//   function startPolling() {
-//     if (ds) {
-//       const poll = async () => {
-//         if (dualSenseConnected) {
-//           await ds.onRAFBound()
-//           setImmediate(poll) // Continue polling
-//         }
-//       }
-//       setImmediate(poll) // Start the polling loop
-//     }
-//   }
-//
-//   function stopPolling() {
-//     dualSenseConnected = false
-//     // No need to explicitly stop, the loop will exit due to the check
-//   }
 }
 
 app.on('ready', createWindow)
