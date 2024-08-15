@@ -3,18 +3,18 @@ import { storeToRefs } from 'pinia'
 import { useStepStore } from '@/store/step'
 
 const stepStore = useStepStore()
-const { steps, currentStep } = storeToRefs(stepStore)
+const { currentSession, currentStep } = storeToRefs(stepStore)
 </script>
 
 <template>
   <div class="steps-panel">
     <div
       class="step"
-      v-for="(step, index) in steps"
+      v-for="(step, index) in currentSession?.steps"
       :key="step.id"
       :class="{
-        'active-step': step.id === currentStep.id,
-        'disabled-step': step.status === 'PENDING' && step.id !== currentStep.id,
+        'active-step': step.id === currentStep?.id,
+        'disabled-step': step.status === 'PENDING' && step.id !== currentStep?.id,
         'completed-step': step.status === 'SUCCESS',
         'failed-step': step.status === 'FAIL'
       }"
@@ -30,7 +30,7 @@ const { steps, currentStep } = storeToRefs(stepStore)
         <div class="fail-icon">&#10007;</div> <!-- Unicode "X" mark for fail -->
       </template>
 
-      <template v-if="step.id === currentStep.id && step.status === 'PENDING'">
+      <template v-if="step.id === currentStep?.id && step.status === 'PENDING'">
         <div class="loading-spinner"></div>
       </template>
     </div>

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { DualSense, type DualSenseState } from 'dualsense.js'
 import { reactive, readonly, ref, watch } from 'vue'
+import { now } from '@vueuse/core'
 
 function throttle<T extends (...args: any[]) => void>(fn: T, delay: number): (...args: Parameters<T>) => void {
   let timer: number | null = null
@@ -16,6 +17,7 @@ function throttle<T extends (...args: any[]) => void>(fn: T, delay: number): (..
 export const useDualSenseStore = defineStore('dualsense', () => {
   const dualsense = ref<DualSense | null>(null)
   const isConnected = ref(false)
+  const dualsenseId = ref(null)
   const state = ref<DualSenseState>({} as DualSenseState)
   const output = reactive({})
 
@@ -44,6 +46,7 @@ export const useDualSenseStore = defineStore('dualsense', () => {
   window.electron.receive('ds-connected', () => {
     console.log("================ ds-connected")
     isConnected.value = true
+    dualsenseId.value = dualsense.value.SN || `DS00001-${Date.now()}`
   })
 
   window.electron.receive('ds-disconnected', () => {
@@ -66,6 +69,7 @@ export const useDualSenseStore = defineStore('dualsense', () => {
 
   return {
     dualsense,
+    dualsenseId, // Dualsense Serial Number
     isConnected,
     state: readonly(state),
     output

@@ -2,9 +2,24 @@
 import { useDualSenseStore } from '@/store/dualsense'
 import ContentTips from '@/components/common/ContentTips.vue'
 import { storeToRefs } from 'pinia'
+import { computed } from 'vue'
+import { useStepStore } from '@/store/step'
 
 const dualsenseStore = useDualSenseStore()
 const { isConnected, state } = storeToRefs(dualsenseStore)
+const stepStore = useStepStore()
+const { currentSession } = storeToRefs(stepStore)
+
+// Computed property to calculate session time spent in hh:mm:ss format
+const sessionTimeSpent = computed(() => {
+  if (!currentSession.value || !currentSession.value.startDate) return '00:00:00'
+  const now = new Date()
+  const duration = now.getTime() - new Date(currentSession.value.startDate).getTime()
+  const hours = String(Math.floor(duration / (1000 * 60 * 60))).padStart(2, '0')
+  const minutes = String(Math.floor((duration / (1000 * 60)) % 60)).padStart(2, '0')
+  const seconds = String(Math.floor((duration / 1000) % 60)).padStart(2, '0')
+  return `${hours}:${minutes}:${seconds}`
+})
 </script>
 
 <template>
@@ -15,8 +30,24 @@ const { isConnected, state } = storeToRefs(dualsenseStore)
         <div v-if="isConnected">
             <table>
                 <tr>
-                    <td class="label">{{ $t('connect_panel.report_time') }}</td>
-                    <td class="value">{{ state.timestamp.toFixed(2) }}</td>
+                    <td class="label">Session Time</td>
+                    <td class="value">{{ sessionTimeSpent }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Session ID</td>
+                    <td class="value">{{ currentSession?.id || 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Serial Number</td>
+                    <td class="value">{{ currentSession?.deviceSerialNumber || 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Conencted via</td>
+                    <td class="value flex items-center justify-end">
+                        <div v-if="state.interface === 'bt'" class="i-mingcute-bluetooth-line"></div>
+                        <div v-else class="i-mingcute-usb-line"></div>
+                        <span class="ml-1">{{ state.interface === 'bt' ? 'Bluetooth' : 'USB' }}</span>
+                    </td>
                 </tr>
                 <tr>
                     <td class="label">{{ $t('connect_panel.battery_level') }}</td>
@@ -28,22 +59,7 @@ const { isConnected, state } = storeToRefs(dualsenseStore)
                         $t('connect_panel.battery_level_charging') : $t('connect_panel.battery_level_not_charging') }}
                     </td>
                 </tr>
-                <tr>
-                    <td class="label">{{ $t('connect_panel.headphone_connect_state') }}</td>
-                    <td class="value">{{ state.headphoneConnected ? $t('connect_panel.connected') :
-                        $t('connect_panel.not_connected') }}</td>
-                </tr>
             </table>
-        </div>
-        <div class="flex items-center justify-between">
-            <div class="flex items-center text-primary/80">
-                <div v-if="!isConnected">{{ $t('connect_panel.not_connected') }}</div>
-                <template v-else>
-                    <div v-if="state.interface === 'bt'" class="i-mingcute-bluetooth-line"></div>
-                    <div v-else class="i-mingcute-usb-line"></div>
-                    <span class="ml-1">{{ $t('connect_panel.connected') }}</span>
-                </template>
-            </div>
         </div>
     </div>
 </template>

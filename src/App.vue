@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { watch } from 'vue'
 import MainFooter from './components/MainFooter.vue'
 import MainHeader from './components/MainHeader.vue'
 import ConnectPanel from './components/ConnectPanel.vue'
@@ -9,9 +10,15 @@ import { useDualSenseStore } from './store/dualsense'
 import { useStepStore } from '@/store/step'
 
 const dualsenseStore = useDualSenseStore()
-const { isConnected } = storeToRefs(dualsenseStore)
+const { isConnected, dualsenseId } = storeToRefs(dualsenseStore)
 const stepStore = useStepStore()
-const { globalStatus,sessionActive } = storeToRefs(stepStore)
+const { currentSession } = storeToRefs(stepStore)
+
+watch(dualsenseId, (newSerialNumber) => {
+  if (newSerialNumber) {
+    stepStore.checkAndStartNewSession(newSerialNumber)
+  }
+})
 
 const handleSetStepSuccess = () => {
   stepStore.setStepSuccess()
@@ -21,9 +28,6 @@ const handleSetStepFail = () => {
   stepStore.setStepFail()
 }
 
-const handleStartNewSession = () => {
-  stepStore.startNewSession()
-}
 </script>
 
 <template>
@@ -33,24 +37,30 @@ const handleStartNewSession = () => {
     <div class="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-3 min-h-[var(--min-height)]">
       <div class="flex flex-col gap-3 items-start">
         <ConnectPanel />
-        <StepsPanel v-if="sessionActive" />
+        <StepsPanel v-if="currentSession?.isActive || isConnected" />
         <!-- for test -->
-        <div class="button-container" v-if="sessionActive">
+        <div class="button-container" v-if="currentSession?.isActive">
           <button @click="handleSetStepSuccess">Set Step Success</button>
           <button @click="handleSetStepFail">Set Step Fail</button>
         </div>
       </div>
       <!-- Display StepRunnerPanel and the final result -->
       <div class="dou-sc-container">
-        <StepRunnerPanel v-if="sessionActive" />
-        <div v-else class="result-screen" :class="globalStatus === 'OK' ? 'success' : 'fail'">
-          <div class="result-content">
-            <span class="result-icon">
-              <span v-if="globalStatus === 'OK'">✓</span>
-              <span v-else>✖</span>
-            </span>
-            <h2>Final Result: {{ globalStatus }}</h2>
-            <button @click="handleStartNewSession">Start New Session</button>
+        <StepRunnerPanel v-if="currentSession?.isActive" />
+        <div v-else-if="currentSession?.globalStatus === 'OK' || currentSession?.globalStatus === 'KO'">
+          <div class="result-screen" :class="currentSession?.globalStatus === 'OK' ? 'success' : 'fail'">
+            <div class="result-content">
+              <span class="result-icon">
+                <span v-if="currentSession?.globalStatus === 'OK'">✓</span>
+                <span v-else>✖</span>
+              </span>
+              <h2>Final Result: {{ currentSession?.globalStatus }}</h2>
+            </div>
+          </div>
+        </div>
+        <div v-else>
+          <div class="result-screen">
+            <h2>Please connect your DualSense to start test....</h2>
           </div>
         </div>
       </div>
@@ -85,7 +95,7 @@ main {
   justify-content: center;
   align-items: center;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(88, 87, 87, 0.5);
   border-radius: 12px;
   padding: 20px;
   text-align: center;
