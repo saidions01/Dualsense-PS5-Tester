@@ -45,7 +45,7 @@ export const useDualSenseStore = defineStore('dualsense', () => {
   window.electron.receive('ds-connected', () => {
     console.log("================ ds-connected")
     isConnected.value = true
-    dualsenseId.value = dualsense.value.SN || `DS00001-${Date.now()}`
+    dualsenseId.value = dualsense.value.serialNumber || `DS00001-${Date.now()}`
   })
 
   window.electron.receive('ds-disconnected', () => {

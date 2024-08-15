@@ -44,6 +44,8 @@ export class DualSense extends EventEmitter {
 
   isConnected = false
 
+  serialNumber: String = ''
+
   constructor(options: DualSenseOptions, HID: any) {
     super()
 
@@ -69,18 +71,16 @@ export class DualSense extends EventEmitter {
       this.#onConnectionError()
     }
 
-    // Log available devices for debugging
     const devices = this.HID.devices();
 
     // Check if we already have permissions for a DualSense device.
-    const deviceInfo = this.HID.devices().find((device: any) => device.vendorId === VENDOR_ID_SONY && device.productId === PRODUCT_ID_DUAL_SENSE);
-
+    const deviceInfo = devices.find((device: any) => device.vendorId === VENDOR_ID_SONY && device.productId === PRODUCT_ID_DUAL_SENSE);
     if (deviceInfo && deviceInfo.path) {
       try {
         const device = new this.HID.HID(deviceInfo.path);
 
-        // this.emit('connected')
         this[PROPERTY_DEVICE] = device
+        this.serialNumber = deviceInfo.serialNumber
         this.#checkConnectInterface(this[PROPERTY_DEVICE])
         this[PROPERTY_DEVICE].on('data', this.#handleControllerReport.bind(this))
         this[PROPERTY_DEVICE].on('error', this.#onConnectionError.bind(this))
@@ -88,6 +88,7 @@ export class DualSense extends EventEmitter {
         console.error('Failed to open HID device:', error);
         this.emit('disconnected')
         this.isConnected = false
+        this.serialNumber = ''
       }
     } else {
       console.log('No suitable HID device found');
@@ -108,11 +109,10 @@ export class DualSense extends EventEmitter {
     try {
       // Simulate device request
       const deviceInfo = this.HID.devices().find((device: any) => device.vendorId === VENDOR_ID_SONY && device.productId === PRODUCT_ID_DUAL_SENSE);
-
       if (deviceInfo && deviceInfo.path) {
         const device = new this.HID.HID(deviceInfo.path);
-
         this[PROPERTY_DEVICE] = device
+        this.serialNumber = deviceInfo.serialNumber
         this.#checkConnectInterface(this[PROPERTY_DEVICE])
         this[PROPERTY_DEVICE].on('data', this.#handleControllerReport.bind(this))
         this[PROPERTY_DEVICE].on('error', this.#onConnectionError.bind(this))
@@ -120,6 +120,7 @@ export class DualSense extends EventEmitter {
       } else {
         this.emit('disconnected')
         this.isConnected = false
+        this.serialNumber = ''
         return false;
       }
     } catch (error) {
