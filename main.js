@@ -19,7 +19,7 @@ function createWindow() {
     width: 800,
     height: 600,
     fullscreen: !isDev, // Fullscreen mode in production
-    autoHideMenuBar: true, // Hides the menu bar
+   // autoHideMenuBar: true, // Hides the menu bar
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -38,7 +38,8 @@ function createWindow() {
   if (isDev) {
     mainWindow.webContents.openDevTools() // Open DevTools in development
   }
-
+  // this was added to activate devtools you need to delete after finishing with it
+  mainWindow.webContents.openDevTools()
   ds = new DualSense({ persistCalibration: true }, HID)
   ds.on('connected', () => {
     console.log('MAIN ---------------------- connected')
