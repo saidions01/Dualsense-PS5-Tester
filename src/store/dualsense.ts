@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { DualSense, type DualSenseState } from 'dualsense.js'
 import { reactive, readonly, ref, watch } from 'vue'
-import { now } from '@vueuse/core'
 
 function throttle<T extends (...args: any[]) => void>(fn: T, delay: number): (...args: Parameters<T>) => void {
   let timer: number | null = null
