@@ -9,28 +9,6 @@ const checkResult = ref<string | null>(null)
 const emit = defineEmits(['checkResult']) 
 const allFalse = ref(true) 
 
-const testobject = reactive({
-  // Initial state
-  squareHasEverBeenTrue: false,
-  triangleHasEverBeenTrue: false,
-  circleHasEverBeenTrue: false,
-  crossHasEverBeenTrue: false,
-  dPadUpHasEverBeenTrue: false,
-  dPadRightHasEverBeenTrue: false,
-  dPadDownHasEverBeenTrue: false,
-  dPadLeftHasEverBeenTrue: false,
-  l1HasEverBeenTrue: false,
-  l2HasEverBeenTrue: false,
-  l3HasEverBeenTrue: false,
-  r1HasEverBeenTrue: false,
-  r2HasEverBeenTrue: false,
-  r3HasEverBeenTrue: false,
-  optionsHasEverBeenTrue: false,
-  createHasEverBeenTrue: false,
-  muteHasEverBeenTrue: false,
-  playStationHasEverBeenTrue: false,
-  touchPadClickHasEverBeenTrue: false,
-}) 
 
 const axesClasses = reactive({
   leftStickX: false,
