@@ -300,7 +300,6 @@ const handleButtonsPress=()=>{
     console.log("the set size is ",boutonsPressedNames.value.size)
     
 }
-
 // Function to handle touchpad start
 const handleTouchStart = (x: number, y: number) => {
   touchpadActive.value = true;
@@ -310,8 +309,7 @@ const handleTouchStart = (x: number, y: number) => {
        return element.x >= zoneTopRight.xmin && element.x <= zoneTopRight.xmax 
        && element.y >= zoneTopRight.ymin && element.y <= zoneTopRight.ymax
       })
-};
-
+}
 // Function to handle touchpad move
 const handleTouchMove = (x: number, y: number) => {
   if (touchpadActive.value) {
@@ -336,11 +334,9 @@ const handleTouchMove = (x: number, y: number) => {
        && element.y >= zoneBottomMiddle.ymin && element.y <= zoneBottomMiddle.ymax
       })
   }
-};
-
+}
 // Function to handle touchpad end
 const handleTouchEnd = () => {
-    
     let checkValues=false
   if (touchpadState.value) {
     const { x, y } = touchpadState.value;
@@ -406,7 +402,6 @@ const checkSticks = () => {
     leftYmaxReached = true
     boutonsPressedNames.value.add("leftYmaxReached")
   }
-
   // Check for right stick extremes
   if (detail.axes.rightStickX === -1 && !rightXminReached) {
     rightStickOk.rightStickXmin = true
@@ -435,7 +430,6 @@ const checkSticks = () => {
 }
 
 const performCheck = (setSize:number) => {
-    
   if (isConnected.value) {
     // Check for set length
     if (setSize === 34) {
@@ -450,8 +444,7 @@ const performCheck = (setSize:number) => {
 
 let  firstActiveTouch=computed(() => {
       return state.value.touchpad.touches.find((touch: Touch) => touch.active) || null;
-    });
-
+    })
 
 // Watch for changes in the touchpad touches and allFalse
 // Watch for touch events
@@ -469,13 +462,11 @@ watch(
   { immediate: true } // Execute immediately on creation
 )
 
-
 // Watch for changes in the sticks
 watch(
   () => [state.value.axes],
   async() => {
     checkSticks()
-   // performCheck()
   },
   {immediate: true  } // Execute immediately on creation
 )
@@ -484,8 +475,6 @@ watch(
   () => [state.value.buttons],
   async() => {
       handleButtonsPress()
-      //performCheck()
-
   },
   {} // Execute immediately on creation
 )
@@ -495,7 +484,6 @@ watch(
    // if(boutonsPressedNames.value.size===34){
         performCheck(newSize)
     //}
-        
      
   },
   {} // Execute immediately on creation
@@ -688,29 +676,14 @@ svg {
         @apply fill-white dark-fill-black;
     }
 
-    .ds-active {
-        @apply important-fill-primary important-stroke-primary;
-    }
 
-    .ds-trigger-active {
-        @apply fill-primary important-stroke-primary;
-    }
 
     .ds-touchpad-active {
         @apply important-stroke-primary;
 
     }
-    .ds-touchpad-fill-with-blue{
-        @apply fill-primary important-stroke-primary;
-    }
+   
  
-    .ds-red {
-    @apply fill-red-500; // Apply the red fill
-    fill: red !important; // Force the red color using !important
-}
-.disabled {
-  @apply opacity-50 pointer-events-none; /* Use Tailwind's utility classes */
-}
 .ds-valid {
     @apply fill-green-500; // Apply the red fill
     fill: green !important; // Force the red color using !important
