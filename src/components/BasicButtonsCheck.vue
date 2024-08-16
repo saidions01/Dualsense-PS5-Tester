@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useDualSenseStore } from '@/store/dualsense';
 import { storeToRefs } from 'pinia';
-import { reactive, ref, watch,toRaw, defineEmits} from 'vue';
+import { reactive, ref, watch,toRaw, defineEmits, computed} from 'vue';
 import { useStepStore } from '@/store/step';
 const stepStore = useStepStore()
 const checkResult = ref<string | null>(null) 
@@ -32,8 +32,14 @@ let sn_consol = '', ar = '', bat = '', level = '', al = '', br11 = 'not pressed'
   bar3 = 'not pressed', bal3 = 'not pressed', alxl = '', alxr = '', alydown = '', alyup = '', arxl = '', arxr = '', arydown = '', 
   aryup = '', bpss = 'not pressed', bmic = 'not pressed', vr = '', vl = '', L2_TP1 = '', R2_TP1 = '', L2_TP2 = '', R2_TP2 = '', 
   L2_TP3 = '', R2_TP3 = '', LED_light = '', Bluetooth = '',bal2='',bar2=''
-// destructuring state.value
+// declaring touch interface
  
+interface Touch {
+  touchId: number;
+  x: number;
+  y: number;
+  active: boolean;
+}
 
   // objects we worked with in the store in the previous try
 const testAxesObject= reactive({
@@ -441,6 +447,12 @@ const performCheck = (setSize:number) => {
     console.log("not working")
   }
 }
+
+let  firstActiveTouch=computed(() => {
+      return state.value.touchpad.touches.find((touch: Touch) => touch.active) || null;
+    });
+
+
 // Watch for changes in the touchpad touches and allFalse
 // Watch for touch events
 watch(
@@ -566,8 +578,14 @@ watch(
           class="ds-stroke-normal"
           :class="{ 'ds-touchpad-active': testobject.touchPadClickHasEverBeenTrue }" />
     
-          <circle v-for="touch of state.touchpad.touches" :key="touch.touchId" r="19" class="ds-filled-icon"
-          :cx="getTouchPointX(touch.x)" :cy="getTouchPointY(touch.y)" />
+          <circle 
+      v-if="firstActiveTouch" 
+      :key="firstActiveTouch.touchId"
+      r="19" 
+      class="ds-filled-icon"
+      :cx="getTouchPointX(firstActiveTouch.x)" 
+      :cy="getTouchPointY(firstActiveTouch.y)" 
+    />
 </g>
 
         <path id="r1"
