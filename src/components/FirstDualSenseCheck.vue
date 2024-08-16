@@ -2,7 +2,6 @@
 import { ref, onMounted, defineEmits, reactive } from 'vue' 
 import { storeToRefs } from 'pinia' 
 import { useDualSenseStore } from '@/store/dualsense' 
-
 const dualsenseStore = useDualSenseStore() 
 const { isConnected, state } = storeToRefs(dualsenseStore) 
 const checkResult = ref<string | null>(null) 
