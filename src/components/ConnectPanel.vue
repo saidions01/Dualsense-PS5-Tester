@@ -27,7 +27,7 @@ const sessionTimeSpent = computed(() => {
         <ContentTips v-if="!isConnected">
             <p v-html="$t('connect_panel.tips')"></p>
         </ContentTips>
-        <div v-if="isConnected">
+        <div  v-if="currentSession?.isActive || isConnected">
             <table>
                 <tr>
                     <td class="label">Session Time</td>
