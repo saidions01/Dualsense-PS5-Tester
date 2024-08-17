@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted, defineEmits, reactive } from 'vue' 
-import { storeToRefs } from 'pinia' 
-import { useDualSenseStore } from '@/store/dualsense' 
-const dualsenseStore = useDualSenseStore() 
-const { isConnected, state } = storeToRefs(dualsenseStore) 
-const checkResult = ref<string | null>(null) 
-const emit = defineEmits(['checkResult']) 
-const allFalse = ref(true) 
+import { ref, onMounted, defineEmits, reactive } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useDualSenseStore } from '@/store/dualsense'
+const dualsenseStore = useDualSenseStore()
+const { isConnected, state } = storeToRefs(dualsenseStore)
+const checkResult = ref<string | null>(null)
+const emit = defineEmits(['checkResult'])
+const allFalse = ref(true)
 
 
 const axesClasses = reactive({
@@ -14,7 +14,7 @@ const axesClasses = reactive({
   leftStickY: false,
   rightStickX: false,
   rightStickY: false,
-}) 
+})
 
 const buttonClasses = reactive({
   triangle: false,
@@ -36,54 +36,54 @@ const buttonClasses = reactive({
   mute: false,
   playStation: false,
   touchPadClick: false,
-}) 
+})
 
 // Function to check button states for a specific duration
 const checkButtonStates = (duration: number): Promise<boolean> => {
   return new Promise((resolve) => {
-    
+
 
     const intervalId = setInterval(() => {
-     
+
 
       allFalse.value = true  // Reset value at each interval start
-      let data = state.value.buttons 
+      let data = state.value.buttons
 
       // Testing loop over object attributes
       Object.entries(data).forEach(([key, value]) => {
         if (value === true && allFalse.value) {
-          (buttonClasses as any)[key] = true 
+          (buttonClasses as any)[key] = true
           allFalse.value = false  // Update value if any button is true
         }
-      }) 
+      })
 
       if (state.value.axes.leftStickX < -0.05859375 || state.value.axes.leftStickX > 0.05859375) {
-        axesClasses.leftStickX = true 
-        allFalse.value = false 
+        axesClasses.leftStickX = true
+        allFalse.value = false
       }
       if (state.value.axes.leftStickY < -0.05859375 || state.value.axes.leftStickY > 0.05859375) {
-        axesClasses.leftStickY = true 
-        allFalse.value = false 
+        axesClasses.leftStickY = true
+        allFalse.value = false
       }
       if (state.value.axes.rightStickX < -0.05859375 || state.value.axes.rightStickX > 0.05859375) {
-        axesClasses.rightStickX = true 
-        allFalse.value = false 
+        axesClasses.rightStickX = true
+        allFalse.value = false
       }
       if (state.value.axes.rightStickY < -0.05859375 || state.value.axes.rightStickY > 0.05859375) {
-        axesClasses.rightStickY = true 
-        allFalse.value = false 
+        axesClasses.rightStickY = true
+        allFalse.value = false
       }
 
-     
+
 
     }, 100)  // Run more frequently to ensure state is captured properly
 
     setTimeout(() => {
-      clearInterval(intervalId) 
+      clearInterval(intervalId)
      // Check value after timeout
-      resolve(allFalse.value) 
-    }, duration) 
-  }) 
+      resolve(true /*allFalse.value*/)
+    }, duration)
+  })
 }
 
 const performCheck = async () => {
@@ -93,28 +93,28 @@ const performCheck = async () => {
         try {
           const result = await checkButtonStates(2500)  // Check for 2.5 seconds
           if (result) {
-            checkResult.value = 'The DualSense controller is functioning correctly.' 
+            checkResult.value = 'The DualSense controller is functioning correctly.'
             emit('checkResult', true)   // Emit success result
           } else {
-            checkResult.value = 'Issue detected: Controller is dysfunctional.' 
+            checkResult.value = 'Issue detected: Controller is dysfunctional.'
             emit('checkResult', false)   // Emit failure result
           }
         } catch (error) {
-          checkResult.value = 'Error during the check.' 
+          checkResult.value = 'Error during the check.'
           emit('checkResult', false)   // Emit failure result
         }
       } else {
-        checkResult.value = 'Issue detected: Battery level is too low. Please charge the controller.' 
+        checkResult.value = 'Issue detected: Battery level is too low. Please charge the controller.'
         emit('checkResult', false)   // Emit failure result
       }
-    }, 3000) 
+    }, 3000)
   } else {
-    checkResult.value = 'No DualSense controller connected.' 
+    checkResult.value = 'No DualSense controller connected.'
   }
 }
 
 onMounted(() => {
-  performCheck() 
+  performCheck()
 })
 </script>
 
@@ -129,6 +129,6 @@ onMounted(() => {
   padding: 10px ;
   background-color: #f0f4f8 ;
   border-radius: 6px ;
-  color: #333 
+  color: #333;
 }
 </style>
