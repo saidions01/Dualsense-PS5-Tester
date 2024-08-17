@@ -42,13 +42,11 @@ function createWindow() {
  // mainWindow.webContents.openDevTools()
   ds = new DualSense({ persistCalibration: true }, HID)
   ds.on('connected', () => {
-    console.log('MAIN ---------------------- connected')
     dualSenseConnected = true
     mainWindow.webContents.send('ds-connected')
   })
 
   ds.on('disconnected', () => {
-    console.log('MAIN ---------------------- disconnected')
     dualSenseConnected = false
     mainWindow.webContents.send('ds-disconnected')
   })
@@ -59,7 +57,6 @@ function createWindow() {
 
   ipcMain.handle('get-dualsense', () => {
     if (ds) {
-      console.log('MAIN ---------------------- get--dualsense')
       return { state: ds.state, output: ds.output }
     } else {
       return { state: null, output: null }
@@ -68,24 +65,24 @@ function createWindow() {
 
   ipcMain.handle('send-output-report', async (event, outputData) => {
     try {
-      console.log('MAIN ---------------------- Received outputData:')
+      console.log('Received outputData:')
 
       if (ds && ds.isConnected) {
         ds.output = { ...outputData }
         return true
       }
 
-      console.error('MAIN ---------------------- No DualSense device connected.')
+      console.error('No DualSense device connected.')
       return false
     } catch (error) {
-      console.error('MAIN ---------------------- Error handling send-output-report:', error)
+      console.error('Error handling send-output-report:', error)
       return false
     }
   })
 
   setInterval(() => {
-    if (true /*!dualSenseConnected*/) {
-      console.log('MAIN --------------------- requestDevice')
+    if (!dualSenseConnected) {
+      console.log('requestDevice ... ')
       ds.requestDevice()
     }
   }, 1000)
