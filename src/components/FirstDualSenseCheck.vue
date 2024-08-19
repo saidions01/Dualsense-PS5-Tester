@@ -81,7 +81,7 @@ const checkButtonStates = (duration: number): Promise<boolean> => {
     setTimeout(() => {
       clearInterval(intervalId)
      // Check value after timeout
-      resolve(true /*allFalse.value*/)
+      resolve(allFalse.value)
     }, duration)
   })
 }
