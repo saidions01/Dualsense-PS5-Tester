@@ -7,7 +7,7 @@ const { isConnected, state } = storeToRefs(dualsenseStore)
 const checkResult = ref<string | null>(null)
 const emit = defineEmits(['checkResult'])
 const allFalse = ref(true)
-
+const progressBarWidth = ref(0)  // Progress bar width state
 
 const axesClasses = reactive({
   leftStickX: false,
@@ -88,6 +88,9 @@ const checkButtonStates = (duration: number): Promise<boolean> => {
 
 const performCheck = async () => {
   if (isConnected.value) {
+    // Start the progress bar
+    startProgressBar()
+
     setTimeout(async () => {
       if (state.value.battery.level > 9) {
         try {
@@ -113,6 +116,17 @@ const performCheck = async () => {
   }
 }
 
+const startProgressBar = () => {
+  progressBarWidth.value = 0  // Reset progress bar
+  const interval = setInterval(() => {
+    if (progressBarWidth.value < 100) {
+      progressBarWidth.value += 1
+    } else {
+      clearInterval(interval)  // Stop the interval when it reaches 100%
+    }
+  }, 50)  // 50ms interval for a 5-second transition
+}
+
 onMounted(() => {
   performCheck()
 })
@@ -120,15 +134,47 @@ onMounted(() => {
 
 <template>
   <div class="dualsense-check">
-    <p>{{ checkResult }}</p>
+    <div class="progress-bar-container">
+      <div class="progress-bar" :style="{ width: progressBarWidth + '%' }"></div>
+    </div>
+    <div class="progress-text">Checking in progress ...</div>
+    <div class="result-text" v-if="checkResult">{{ checkResult }}</div>
   </div>
 </template>
 
 <style scoped>
 .dualsense-check {
-  padding: 10px ;
-  background-color: #f0f4f8 ;
-  border-radius: 6px ;
+  padding: 10px;
+  background-color: #f0f4f8;
+  border-radius: 6px;
+  color: #333;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.progress-bar-container {
+  width: 100%;
+  background-color: #e0e7ef;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.progress-bar {
+  height: 6px;
+  background-color: #4a90e2;
+  transition: width 0.03s linear; /* Smooth progress bar */
+}
+
+.progress-text {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #4a90e2;
+}
+
+.result-text {
+  margin-top: 12px;
+  font-size: 14px;
   color: #333;
 }
 </style>
