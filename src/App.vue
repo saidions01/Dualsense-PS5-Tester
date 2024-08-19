@@ -12,7 +12,7 @@ import { useStepStore } from '@/store/step'
 const dualsenseStore = useDualSenseStore()
 const { isConnected, dualsenseId } = storeToRefs(dualsenseStore)
 const stepStore = useStepStore()
-const { currentSession } = storeToRefs(stepStore)
+const { currentSession, currentStep } = storeToRefs(stepStore)
 
 watch(dualsenseId, (newSerialNumber) => {
   if (newSerialNumber) {
@@ -38,10 +38,21 @@ const handleSetStepFail = () => {
       <div class="flex flex-col gap-3 items-start">
         <ConnectPanel />
         <StepsPanel v-if="currentSession?.isActive || isConnected" />
-        <!-- for test -->
+        <!-- for test
         <div class="button-container" v-if="currentSession?.isActive">
           <button @click="handleSetStepSuccess">Set Step Success</button>
           <button @click="handleSetStepFail">Set Step Fail</button>
+        </div> -->
+        <div class="dou-sc-container space-y-2 self-start w-full legende h-full" v-if="currentSession?.isActive">
+          <div v-if="currentStep?.id === 2">
+            <img src="./assets/legende_fail_by_cable.png" width="300px">
+          </div>
+          <div v-else-if="currentStep?.id === 3">
+            <img src="./assets/legende_fail_success.png" width="300px">
+          </div>
+          <div v-else-if="currentStep?.id === 4" width="250px">
+            <img src="./assets/legende_fail.png">
+          </div>
         </div>
       </div>
       <!-- Display StepRunnerPanel and the final result -->
@@ -76,6 +87,7 @@ main {
   min-height: var(--min-height);
   @apply w-full max-w-[--max-width] mx-auto px-2;
 }
+
 .button-container {
   display: flex;
   justify-content: center;
@@ -116,11 +128,11 @@ main {
 }
 
 .result-screen.success {
-  background-color: rgba(114, 245, 145, 0.8); /* Green background with opacity */
+  background-color: rgba(114, 245, 145, 0.8);
 }
 
 .result-screen.fail {
-  background-color: rgba(241, 105, 119, 0.8); /* Red background with opacity */
+  background-color: rgba(241, 105, 119, 0.8);
 }
 
 .result-screen h2 {
