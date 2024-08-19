@@ -68,6 +68,7 @@ function createWindow() {
 
       if (ds && ds.isConnected) {
         ds.output = { ...outputData }
+        await ds.onRAFBound()
         return true
       }
 
