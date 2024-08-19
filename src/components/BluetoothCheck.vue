@@ -11,13 +11,17 @@ const emit = defineEmits(['checkResult'])
 const performCheck = () => {
   if (isConnected.value) {
     // Perform some checks based on the DualSense state
+
     console.log("state.value.interface ------------------ " + state.value.interface)
-    if (state.value.interface === "bt") {
-      checkResult.value = "The DualSense controller is connected via Bluetooth correctly."
-      emit("checkResult", true); // Emit success result
-    } else {
-      checkResult.value = "Wiating to connect to Bluetooth or failling step ..."
-    }
+    setTimeout(() => {
+      console.log("state.value.interface ------------------ " + state.value.interface)
+      if (state.value.interface === "bt") {
+        checkResult.value = "The DualSense controller is connected via Bluetooth correctly."
+        emit("checkResult", true); // Emit success result
+      } else {
+        checkResult.value = "Wiating to connect to Bluetooth or failling step ..."
+      }
+    }, 500)
   } else {
     checkResult.value = "No DualSense controller connected."
   }
