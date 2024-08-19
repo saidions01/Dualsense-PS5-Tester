@@ -3,6 +3,7 @@ import { useDualSenseStore } from '@/store/dualsense';
 import { storeToRefs } from 'pinia';
 import { reactive, ref, watch, toRaw, defineEmits, computed } from 'vue';
 import { useStepStore } from '@/store/step';
+import AccelValueBar from './AccelValueBar.vue'
 const stepStore = useStepStore()
 const checkResult = ref<string | null>(null)
 const emit = defineEmits(['checkResult'])
@@ -600,6 +601,14 @@ watch(
         d="M252.212,116.785l-114.214,0c-12.312,0 1.248,-110.916 78.919,-110.916c37.32,-0 51.81,110.916 35.295,110.916Z"
         class="ds-stroke-normal" :class="{ 'ds-valid': testobject.l2HasEverBeenTrue }" :style="{
           '--un-fill-opacity': testAxesObject.l2
+        }" />
+    </g>
+    <g id="r3group" v-if="rightXmaxReached && rightXminReached
+      && rightYmaxReached && rightYminReached">
+      <circle id="r3-border" cx="763.456" cy="528.548" r="87.347" class="ds-stroke-normal ds-valid" />
+      <circle id="r3" cx="763.456" cy="528.548" r="57.193" class="ds-stroke-normal ds-stick"
+        :class="{ 'ds-valid': testobject.r3HasEverBeenTrue }" :style="{
+          transform: `translate(${getStickPoint(state.axes.rightStickX)}px, ${getStickPoint(state.axes.rightStickY)}px)`
         }" />
     </g>
     <g id="l3group">
