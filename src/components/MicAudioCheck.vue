@@ -42,7 +42,6 @@ onMounted(() => {
   performCheck()
 })
 </script>
-
 <template>
   <div class="dualsense-check">
     <svg viewBox="0 0 1117 892">
@@ -156,7 +155,6 @@ onMounted(() => {
     </div>
   </div>
 </template>
-
 <style scoped>
 .blinking-text {
   font-weight: 700;
@@ -192,7 +190,6 @@ onMounted(() => {
     transform: translateY(-55px);
   }
 }
-
 .dualsense-check {
   display: flex;
   flex-direction: column;
@@ -200,7 +197,6 @@ onMounted(() => {
   padding: 5px;
   height: 600px;
 }
-
 .audio {
   display: flex;
   justify-content: center;
@@ -215,30 +211,24 @@ onMounted(() => {
   width: 80px;
 
 }
-
 svg {
   @apply w-full;
 
   #touchpadgroup {
     @apply relative;
   }
-
   .ds-stroke-icon {
     @apply stroke-4px stroke-black/50 dark-stroke-white/50 fill-none;
   }
-
   .ds-filled-icon {
     @apply fill-black/50 dark-fill-white/50;
   }
-
   .ds-stroke-normal {
     @apply stroke-4px stroke-black/80 dark-stroke-white/80 fill-none;
   }
-
   .ds-ps-icon {
     @apply fill-black/20 dark-fill-white/20;
   }
-
   .ds-stick {
     @apply fill-white dark-fill-black;
   }

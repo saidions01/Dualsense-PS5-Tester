@@ -77,7 +77,6 @@ const checkButtonStates = (duration: number): Promise<boolean> => {
 
 
     }, 100)  // Run more frequently to ensure state is captured properly
-
     setTimeout(() => {
       clearInterval(intervalId)
      // Check value after timeout
@@ -85,7 +84,6 @@ const checkButtonStates = (duration: number): Promise<boolean> => {
     }, duration)
   })
 }
-
 const performCheck = async () => {
   if (isConnected.value) {
     // Start the progress bar
@@ -131,7 +129,6 @@ onMounted(() => {
   performCheck()
 })
 </script>
-
 <template>
   <div class="dualsense-check">
     <div class="progress-bar-container">
@@ -141,7 +138,6 @@ onMounted(() => {
     <div class="result-text" v-if="checkResult">{{ checkResult }}</div>
   </div>
 </template>
-
 <style scoped>
 .dualsense-check {
   padding: 10px;
