@@ -81,7 +81,7 @@ export class DualSense extends EventEmitter {
 
         this[PROPERTY_DEVICE] = device
         this.serialNumber = deviceInfo.serialNumber
-        this.#checkConnectInterface(this[PROPERTY_DEVICE])
+        this.#checkConnectInterface(deviceInfo)
         this[PROPERTY_DEVICE].on('data', this.#handleControllerReport.bind(this))
         this[PROPERTY_DEVICE].on('error', this.#onConnectionError.bind(this))
       } catch (error) {
@@ -100,20 +100,21 @@ export class DualSense extends EventEmitter {
   /**
    * Check connect interface
    */
-  #checkConnectInterface(device: any) {
-    if (device)
+  #checkConnectInterface(deviceInfo: any) {
+    if (deviceInfo.interface > 0)
       this.state.interface = DualSenseInterface.USB
+    else
+      this.state.interface = DualSenseInterface.Bluetooth
   }
 
   async requestDevice() {
     try {
-      // Simulate device request
       const deviceInfo = this.HID.devices().find((device: any) => device.vendorId === VENDOR_ID_SONY && device.productId === PRODUCT_ID_DUAL_SENSE);
       if (deviceInfo && deviceInfo.path) {
         const device = new this.HID.HID(deviceInfo.path);
         this[PROPERTY_DEVICE] = device
         this.serialNumber = deviceInfo.serialNumber
-        this.#checkConnectInterface(this[PROPERTY_DEVICE])
+        this.#checkConnectInterface(deviceInfo)
         this[PROPERTY_DEVICE].on('data', this.#handleControllerReport.bind(this))
         this[PROPERTY_DEVICE].on('error', this.#onConnectionError.bind(this))
         return true;
@@ -300,11 +301,10 @@ export class DualSense extends EventEmitter {
     this.state.headphoneConnected = headphoneConnected
 
     // Emit state change event
-    this.emit('state-change', { detail: this.state });
+    this.emit('state-change', { detail: this.state })
   }
 
   #handleBluetoothInputReport01(report: DataView) {
-    if (report.byteLength != DUAL_SENSE_BT_INPUT_REPORT_0x01_SIZE) return
 
     const axes0 = report.getUint8(0)
     const axes1 = report.getUint8(1)
@@ -379,12 +379,10 @@ export class DualSense extends EventEmitter {
     this.state.battery.level = NaN
     this.state.headphoneConnected = false
 
-
     this.emit('state-change', { detail: this.state })
   }
 
   #handleBluetoothInputReport31(report: DataView) {
-    if (report.byteLength != DUAL_SENSE_BT_INPUT_REPORT_0x31_SIZE) return
 
     const axes0 = report.getUint8(1)
     const axes1 = report.getUint8(2)
