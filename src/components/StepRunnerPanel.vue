@@ -21,7 +21,7 @@ const handleCheckResult = (isSuccess: boolean) => {
 
 <template>
   <div class="step-runner-panel">
-    <h2>{{ currentStep?.name }}</h2>
+    <h1 class="dou-sc-subtitle">{{ currentStep?.name }}</h1>
     <!-- STEP 1: First Check -->
     <div v-if="currentStep?.id === 1">
       <FirstDualSenseCheck @checkResult="handleCheckResult" />
@@ -48,7 +48,6 @@ const handleCheckResult = (isSuccess: boolean) => {
 <style scoped>
 .step-runner-panel {
   padding: 20px;
-  background-color: #f9f9f9;
   border-radius: 8px;
 }
 </style>

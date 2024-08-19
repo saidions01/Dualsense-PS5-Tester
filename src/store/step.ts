@@ -34,7 +34,7 @@ export const useStepStore = defineStore('step', () => {
       startDate: new Date(),
       userId,
       steps: [
-        { id: 1, name: 'Auto anomalies checking', status: 'PENDING' },
+        { id: 1, name: 'First checking', status: 'PENDING' },
         { id: 2, name: 'Basic Buttons checking', status: 'PENDING' },
         { id: 3, name: 'Light / Rumble / Trigger checking', status: 'PENDING' },
         { id: 4, name: 'Mic/audio checking', status: 'PENDING' },

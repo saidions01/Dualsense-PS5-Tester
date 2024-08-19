@@ -18,7 +18,7 @@ export const useDualSenseStore = defineStore('dualsense', () => {
   const isConnected = ref(false)
   const dualsenseId = ref(null)
   const state = ref<DualSenseState>({} as DualSenseState)
-  const output = reactive({})
+  const output = reactive({} as any)
 
   const initializeDualSense = async () => {
     const ds = await window.electron.getDualSense()
@@ -45,7 +45,7 @@ export const useDualSenseStore = defineStore('dualsense', () => {
   window.electron.receive('ds-connected', () => {
     console.log("================ ds-connected")
     isConnected.value = true
-    dualsenseId.value = dualsense.value.serialNumber || `DS00001-${Date.now()}`
+    dualsenseId.value = dualsense.value.serialNumber || `DS00001`
   })
 
   window.electron.receive('ds-disconnected', () => {
