@@ -45,12 +45,15 @@ const handleSetStepFail = () => {
         </div> -->
         <div class="dou-sc-container space-y-2 self-start w-full legende h-full" v-if="currentSession?.isActive">
           <div v-if="currentStep?.id === 2">
+            <h2 class="warning">⚠️ Warning: Unplugging the USB cable will cause this step to fail!</h2>
             <img src="./assets/legende_fail_by_cable.png" width="300px">
           </div>
           <div v-else-if="currentStep?.id === 3">
+            <h2 class="info pb-2">ℹ️ Info: Press (cross) to succeed the step or press (triangle) to fail.</h2>
             <img src="./assets/legende_fail_success.png" width="300px">
           </div>
           <div v-else-if="currentStep?.id === 4" width="250px">
+            <h2 class="info pb-2">ℹ️ Info: Press (triangle) to fail the step.</h2>
             <img src="./assets/legende_fail.png">
           </div>
         </div>
