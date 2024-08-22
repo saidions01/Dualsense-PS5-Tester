@@ -322,9 +322,6 @@ const handleTouchEnd = () => {
     const { x, y } = touchpadState.value;
     // Check if the final values are within the valid range
     if (x >= 0 && x <= TOUCHPAD_RANGEX && y >= 0 && y <= TOUCHPAD_RANGEY) {
-
-      console.log('Touchpad touch ended within valid range:', touchpadState.value);
-      console.log('FINAL ARRAY, here is the array ', toRaw(touchpadState.value))
       touchpadCoordinatesValues.push(toRaw(touchpadState.value))
     }
     // Assign the CSS class to the TouchpadGroupRef
@@ -333,8 +330,6 @@ const handleTouchEnd = () => {
         && element.y >= zoneBottomleft.ymin && element.y <= zoneBottomleft.ymax
     })
     checkValues = valueCheckingForTheWholeTouchpad.every(element => element === true)
-    console.log("the boolean value is", checkValues)
-    console.log("ARRAY OF BOOLEANS ", valueCheckingForTheWholeTouchpad)
     if (TouchpadGroupRef.value && checkValues) {
       const touchpadElement = TouchpadGroupRef.value.querySelector("#touchpad");
       if (touchpadElement) {
@@ -347,7 +342,7 @@ const handleTouchEnd = () => {
       }
     }
   } else {
-    console.log('Touchpad touch ended outside the valid range:', touchpadState.value);
+    console.log('Touchpad touch ended outside the valid range');
   }
   touchpadActive.value = false
   touchpadState.value = null

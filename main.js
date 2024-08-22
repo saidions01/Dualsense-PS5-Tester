@@ -1,20 +1,21 @@
-const { app, BrowserWindow, ipcMain, Menu } = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const url = require('url')
 const HID = require('node-hid')
 const { DualSense } = require('dualsense.js')
+const { connectBluetoothDevice, disconnectBluetoothDevice } = require('./bluetoothHandling')
 
 // Check if we are in development mode
 const isDev = process.env.NODE_ENV === 'development'
 
 if (!isDev) {
-  console.log = ()=> {}
+  console.log = () => { }
 }
 
 let dualSenseConnected = false
 let ds = null
 
-function createWindow() {
+const createWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -64,7 +65,7 @@ function createWindow() {
 
   ipcMain.handle('send-output-report', async (event, outputData) => {
     try {
-      console.log('Received outputData:')
+      console.log('Received outputData')
 
       if (ds && ds.isConnected) {
         ds.output = { ...outputData }
@@ -80,12 +81,32 @@ function createWindow() {
     }
   })
 
+  ipcMain.handle('connect-bluetooth', async (event, serialNumber) => {
+    console.log('Starting Bluetooth setup...');
+    await connectBluetoothDevice(serialNumber);
+    return true
+  })
+
+  ipcMain.handle('disconnect-bluetooth', async (event, serialNumber) => {
+    console.log('Disconencting Bluetooth setup...');
+    await disconnectBluetoothDevice(serialNumber);
+    return true
+  })
+
   setInterval(() => {
     if (!dualSenseConnected) {
       console.log('requestDevice ... ')
       ds.requestDevice()
     }
   }, 1000)
+
+  // Handle app close
+  // app.on('before-quit', async () => {
+  //   if (dualSenseDevice) {
+  //     dualSenseDevice.close();
+  //   }
+  //   await disconnectAndRemoveDualSense(DUALSENSE_MAC_ADDRESS);
+  // });
 }
 
 app.on('ready', createWindow)
