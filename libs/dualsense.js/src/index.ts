@@ -71,29 +71,32 @@ export class DualSense extends EventEmitter {
       this.#onConnectionError()
     }
 
-    const devices = this.HID.devices();
+    try {
+      const devices = this.HID.devices();
+      // Check if we already have permissions for a DualSense device.
+      const deviceInfo = devices.find((device: any) => device.vendorId === VENDOR_ID_SONY && device.productId === PRODUCT_ID_DUAL_SENSE);
+      if (deviceInfo && deviceInfo.path) {
 
-    // Check if we already have permissions for a DualSense device.
-    const deviceInfo = devices.find((device: any) => device.vendorId === VENDOR_ID_SONY && device.productId === PRODUCT_ID_DUAL_SENSE);
-    if (deviceInfo && deviceInfo.path) {
-      try {
+        console.log("--------- checkGrantedController --------------")
+        console.log(deviceInfo)
+        console.log("-----------------------------------------------")
+
         const device = new this.HID.HID(deviceInfo.path);
-
         this[PROPERTY_DEVICE] = device
         this.serialNumber = deviceInfo.serialNumber
         this.#checkConnectInterface(deviceInfo)
         this[PROPERTY_DEVICE].on('data', this.#handleControllerReport.bind(this))
         this[PROPERTY_DEVICE].on('error', this.#onConnectionError.bind(this))
-      } catch (error) {
-        console.error('Failed to open HID device:', error);
+      } else {
+        console.log('No suitable HID device found');
         this.emit('disconnected')
         this.isConnected = false
-        this.serialNumber = ''
       }
-    } else {
-      console.log('No suitable HID device found');
+    } catch (error) {
+      console.error('Failed to open HID device:', error);
       this.emit('disconnected')
       this.isConnected = false
+      this.serialNumber = ''
     }
   }
 
@@ -111,6 +114,11 @@ export class DualSense extends EventEmitter {
     try {
       const deviceInfo = this.HID.devices().find((device: any) => device.vendorId === VENDOR_ID_SONY && device.productId === PRODUCT_ID_DUAL_SENSE);
       if (deviceInfo && deviceInfo.path) {
+
+        console.log("--------- checkGrantedController --------------")
+        console.log(deviceInfo)
+        console.log("-----------------------------------------------")
+
         const device = new this.HID.HID(deviceInfo.path);
         this[PROPERTY_DEVICE] = device
         this.serialNumber = deviceInfo.serialNumber
