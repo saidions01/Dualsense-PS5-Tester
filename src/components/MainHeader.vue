@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import DarkModeSwitch from './DarkModeSwitch.vue';
 import LangSwitcher from './LangSwitcher.vue';
-
-
+import packageJson from '../../package.json';
+const version = packageJson.version
 </script>
 
 <template>
@@ -10,7 +10,7 @@ import LangSwitcher from './LangSwitcher.vue';
         <div class="header">
             <div class="logo-wrapper">
                 <div class="i-icon-park-twotone-game-ps"></div>
-                <h1>{{ $t('application.name') }}</h1>
+                <h1>DS Tester</h1> <small>- v{{ version }}</small>
             </div>
             <div class="tools-wrapper">
                 <LangSwitcher />

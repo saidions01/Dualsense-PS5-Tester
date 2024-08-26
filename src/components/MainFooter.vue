@@ -6,7 +6,7 @@
     <footer>
         <div class="footer">
             <div class="left">
-                © {{ new Date().getFullYear() }} Copyright by <a href="#" target="_blank" class="dou-sc-link">MPSI</a>.
+                © {{ new Date().getFullYear() }} Copyright by <a class="dou-sc-link">MPSI</a>.
             </div>
             <div class="right"></div>
         </div>
