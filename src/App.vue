@@ -56,10 +56,6 @@ const handleSetStepFail = () => {
             <h2 class="info pb-2">ℹ️ Info: Press (triangle) to fail the step.</h2>
             <img src="./assets/legende_fail.png">
           </div>
-          <div v-else-if="currentStep?.id === 5" width="250px">
-            <h2 class="info pb-2">ℹ️ Info: Press (triangle) to fail the step.</h2>
-            <img src="./assets/legende_fail.png">
-          </div>
         </div>
       </div>
       <!-- Display StepRunnerPanel and the final result -->
