@@ -21,7 +21,7 @@ export const useDualSenseStore = defineStore('dualsense', () => {
   const output = reactive({} as any)
 
   const initializeDualSense = async () => {
-    const ds = await window.electron.getDualSense()
+    const ds = await window.electron?.getDualSense()
     if (ds) {
       dualsense.value = ds
       state.value = ds.state
@@ -38,18 +38,15 @@ export const useDualSenseStore = defineStore('dualsense', () => {
   }
 
   const sendOutputReportToMainProcess = (newOutput: any) => {
-    console.log('Sending updated output to main process:', newOutput)
-    window.electron.sendOutputReport(JSON.parse(JSON.stringify(newOutput)))
+    window.electron?.sendOutputReport(JSON.parse(JSON.stringify(newOutput)))
   }
 
-  window.electron.receive('ds-connected', () => {
-    console.log("================ ds-connected")
+  window.electron?.receive('ds-connected', () => {
     isConnected.value = true
     dualsenseId.value = dualsense.value.serialNumber || `DS00001`
   })
 
-  window.electron.receive('ds-disconnected', () => {
-    console.log("================ ds-disconnected")
+  window.electron?.receive('ds-disconnected', () => {
     isConnected.value = false
   })
 
@@ -59,8 +56,7 @@ export const useDualSenseStore = defineStore('dualsense', () => {
 
   const throttledUpdateState = throttle(updateState, 10)
 
-  window.electron.receive('ds-state-change', ({ detail }: { detail: DualSenseState }) => {
-    // console.log("================ ds-state-change", detail)
+  window.electron?.receive('ds-state-change', ({ detail }: { detail: DualSenseState }) => {
     throttledUpdateState(detail)
   })
 

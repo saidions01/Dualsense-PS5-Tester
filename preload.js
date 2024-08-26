@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer } = require('electron')
+const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electron', {
   receive: (channel, func) => {
@@ -20,6 +20,22 @@ contextBridge.exposeInMainWorld('electron', {
       console.log('Output report sent successfully')
     } else {
       console.error('Failed to send output report')
+    }
+  },
+  connectBluetooth: async (data) => {
+    const result = await ipcRenderer.invoke('connect-bluetooth', data)
+    if (result) {
+      console.log('Bluetooth is conencted successfully')
+    } else {
+      console.error('Failed to connect Bluetooth')
+    }
+  },
+  disconnectBluetooth: async (data) => {
+    const result = await ipcRenderer.invoke('disconnect-bluetooth', data)
+    if (result) {
+      console.log('Bluetooth is disconnect successfully')
+    } else {
+      console.error('Failed to disconnect Bluetooth')
     }
   }
 })

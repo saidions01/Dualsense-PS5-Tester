@@ -84,7 +84,6 @@ export const useStepStore = defineStore('step', () => {
     currentSession.value.duration = Date.now() - currentSession.value.startDate.getTime()
     currentSession.value.isActive = false
     saveProgressToDatabase(currentSession.value)
-    console.log('Session Ended:', currentSession.value)
   }
 
   const saveProgressToDatabase = async (session: Session) => {

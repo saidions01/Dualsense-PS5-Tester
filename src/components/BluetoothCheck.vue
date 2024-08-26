@@ -1,72 +1,68 @@
+
 <script lang="ts">
 import { ref, onMounted, defineEmits, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useDualSenseStore } from "@/store/dualsense";
-import ConnectToBluetooth from "./ConnectToBluetooth.vue";
+import ConnectToBluetooth from './ConnectToBluetooth.vue';
 import UnplugUSB from "./UnplugUSB.vue";
 
-export default {
+
+  export default {
   components: {
     ConnectToBluetooth,
     UnplugUSB,
   },
   setup() {
-    const dualsenseStore = useDualSenseStore();
-    const { isConnected, state } = storeToRefs(dualsenseStore);
-    const checkResult = ref<string | null>(null);
-    const emit = defineEmits(["checkResult"]);
+  
+const dualsenseStore = useDualSenseStore()
+const { isConnected, state } = storeToRefs(dualsenseStore)
+const checkResult = ref<string | null>(null)
+const emit = defineEmits(['checkResult'])
 
-    const performCheck = () => {
-      if (isConnected.value) {
-        console.log(
-          "state.value.interface ------------------ ",
-          state.value.interface
-        );
-        setTimeout(() => {
-          console.log(
-            "state.value.interface ------------------ ",
-            state.value.interface
-          );
-          if (state.value.interface === "bt") {
-            checkResult.value =
-              "The DualSense controller is connected via Bluetooth correctly.";
-            emit("checkResult", true); // Emit success result
-          } else {
-            checkResult.value =
-              "Waiting to connect to Bluetooth or failing step...";
-          }
-        }, 500);
+const performCheck = () => {
+  if (isConnected.value) {
+    console.log("state.value.interface ------------------ ", state.value.interface);
+    setTimeout(() => {
+      console.log("state.value.interface ------------------ ", state.value.interface);
+      if (state.value.interface === "bt") {
+        checkResult.value = "The DualSense controller is connected via Bluetooth correctly.";
+        emit("checkResult", true); // Emit success result
       } else {
-        checkResult.value = "No DualSense controller connected.";
+        checkResult.value = "Waiting to connect to Bluetooth or failing step...";
       }
-    };
+    }, 500);
+  } else {
+    checkResult.value = "No DualSense controller connected.";
+  }
+};
 
-    watch(
-      () => isConnected.value,
-      () => {
-        performCheck();
-      }
-    );
-    // Watcher for triangle button press
-    watch(
-      () => state.value.buttons.triangle,
-      (newVal, oldVal) => {
-        if (newVal && !oldVal) {
-          emit("checkResult", false);
-        }
-      }
-    );
+watch(
+  () => isConnected.value,
+  () => {
+    performCheck()
+  }
+)
+// Watcher for triangle button press
+watch(
+  () => state.value.buttons.triangle,
+  (newVal, oldVal) => {
+    if (newVal && !oldVal) {
+      emit('checkResult', false);
+    }
+  }
+);
 
-    onMounted(() => {
-      performCheck();
-    });
+onMounted(() => {
+  performCheck();
+});
 
     return {
-      isConnected,
-      state,
+      isConnected, state
     };
   },
 };
+
+
 </script>
 
 <template>

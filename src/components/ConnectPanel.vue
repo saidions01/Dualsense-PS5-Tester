@@ -1,27 +1,68 @@
 <script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useDualSenseStore } from '@/store/dualsense'
 import ContentTips from '@/components/common/ContentTips.vue'
 import { storeToRefs } from 'pinia'
-import { computed } from 'vue'
 import { useStepStore } from '@/store/step'
-
+// Use stores
 const dualsenseStore = useDualSenseStore()
 const { isConnected, state } = storeToRefs(dualsenseStore)
 const stepStore = useStepStore()
 const { currentSession } = storeToRefs(stepStore)
-
-// Computed property to calculate session time spent in hh:mm:ss format
-const sessionTimeSpent = computed(() => {
-  if (!currentSession.value || !currentSession.value.startDate) return '00:00:00'
-  const now = new Date()
+// Reactive variable to hold the current time spent
+const currentTimeSpent = ref<string>('00:00:00')
+// Function to calculate session time spent
+const calculateSessionTimeSpent = (): void => {
+  if (!currentSession.value || !currentSession.value.startDate) {
+    currentTimeSpent.value = '00:00:00'
+    return
+  }
+  const now = new Date();
   const duration = now.getTime() - new Date(currentSession.value.startDate).getTime()
   const hours = String(Math.floor(duration / (1000 * 60 * 60))).padStart(2, '0')
   const minutes = String(Math.floor((duration / (1000 * 60)) % 60)).padStart(2, '0')
   const seconds = String(Math.floor((duration / 1000) % 60)).padStart(2, '0')
-  return `${hours}:${minutes}:${seconds}`
+  currentTimeSpent.value = `${hours}:${minutes}:${seconds}`
+}
+// Timer to update the time spent every second
+let timer: ReturnType<typeof setInterval> | null = null;
+// Start the timer
+const startTimer = (): void => {
+  if (!timer) {
+    timer = setInterval(calculateSessionTimeSpent, 1000);
+  }
+}
+// Stop the timer
+const stopTimer = (): void => {
+  if (timer) {
+    clearInterval(timer);
+    timer = null; // Reset the timer variable
+  }
+}
+// Watch for changes in currentSession and isConnected
+watch(
+  () => currentSession.value?.globalStatus,
+  (status) => {     
+      if (status === "IN_PROGRESS") {
+        startTimer(); // Start the timer if the session is active
+      } else {
+        stopTimer(); // Stop the timer if the session is successful
+      }
+  }
+)
+// Computed property to access the current time spent
+const sessionTimeSpent = computed((): string => currentTimeSpent.value);
+// Start the timer when the component is mounted
+onMounted(() => {
+  if (currentSession.value?.isActive) {
+    startTimer(); // Start the timer if the session is already active
+  }
+})
+// Clear the timer when the component is unmounted
+onUnmounted(() => {
+  stopTimer();
 })
 </script>
-
 <template>
     <div class="dou-sc-container space-y-2 self-start w-full">
         <ContentTips v-if="!isConnected">
