@@ -4,13 +4,45 @@ const url = require('url')
 const HID = require('node-hid')
 const { DualSense } = require('dualsense.js')
 const { connectBluetoothDevice, disconnectBluetoothDevice } = require('./bluetoothHandling')
+const fs = require('fs');
+
+// Define the log file path
+const logFilePath = path.join(process.env.HOME, 'log', 'dualsensetester', 'info.log');
+
+// Ensure the log directory exists
+const logDirectory = path.dirname(logFilePath);
+if (!fs.existsSync(logDirectory)) {
+    fs.mkdirSync(logDirectory, { recursive: true });
+}
+
+// Ensure the log file exists
+if (!fs.existsSync(logFilePath)) {
+    fs.writeFileSync(logFilePath, '');
+}
+
+const logFile = fs.createWriteStream(logFilePath, { flags: 'a' });
+
+const originalLog = console.log;
+
+console.log = function(...args) {
+  const timestamp = new Date().toISOString();
+
+  // Convert each argument to a string, handling objects with JSON.stringify
+  const message = args.map(arg => (typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg)).join(' ');
+
+  // Write to the log file
+  logFile.write(`[${timestamp}] ${message}\n`);
+
+  // Output to the console as usual
+  originalLog.apply(console, args);
+};
 
 // Check if we are in development mode
 const isDev = process.env.NODE_ENV === 'development'
 
-if (!isDev) {
-  console.log = () => { }
-}
+// if (!isDev) {
+//   console.log = () => { }
+// }
 
 let dualSenseConnected = false
 let ds = null
@@ -57,9 +89,12 @@ const createWindow = () => {
 
   ipcMain.handle('get-dualsense', () => {
     if (ds) {
-      return { state: ds.state, output: ds.output }
+      console.log('---------------- MAIN ---------------------')
+      console.log(ds.serialNumber)
+      console.log('-------------------------------------------')
+      return { serialNumber: ds.serialNumber, state: ds.state, output: ds.output }
     } else {
-      return { state: null, output: null }
+      return { serialNumber: null, state: null, output: null }
     }
   })
 
@@ -81,15 +116,15 @@ const createWindow = () => {
     }
   })
 
-  ipcMain.handle('connect-bluetooth', async (event, serialNumber) => {
+  ipcMain.handle('connect-bluetooth', async (event, bt_SerialNumber) => {
     console.log('Starting Bluetooth setup...');
-    await connectBluetoothDevice(serialNumber);
+    await connectBluetoothDevice(bt_SerialNumber);
     return true
   })
 
-  ipcMain.handle('disconnect-bluetooth', async (event, serialNumber) => {
+  ipcMain.handle('disconnect-bluetooth', async (event, bt_SerialNumber) => {
     console.log('Disconencting Bluetooth setup...');
-    await disconnectBluetoothDevice(serialNumber);
+    await disconnectBluetoothDevice(bt_SerialNumber);
     return true
   })
 

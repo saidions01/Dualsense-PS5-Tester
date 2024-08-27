@@ -10,7 +10,7 @@ const version = packageJson.version
         <div class="header">
             <div class="logo-wrapper">
                 <div class="i-icon-park-twotone-game-ps"></div>
-                <h1>DS Tester</h1> <small>- v{{ version }}</small>
+                <h1>DS5 Tester</h1> <small>- v{{ version }}</small>
             </div>
             <div class="tools-wrapper">
                 <LangSwitcher />
