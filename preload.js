@@ -22,16 +22,16 @@ contextBridge.exposeInMainWorld('electron', {
       console.error('Failed to send output report')
     }
   },
-  connectBluetooth: async (data) => {
-    const result = await ipcRenderer.invoke('connect-bluetooth', data)
+  connectBluetooth: async (bt_SerialNumber) => {
+    const result = await ipcRenderer.invoke('connect-bluetooth', bt_SerialNumber)
     if (result) {
       console.log('Bluetooth is conencted successfully')
     } else {
       console.error('Failed to connect Bluetooth')
     }
   },
-  disconnectBluetooth: async (data) => {
-    const result = await ipcRenderer.invoke('disconnect-bluetooth', data)
+  disconnectBluetooth: async (bt_SerialNumber) => {
+    const result = await ipcRenderer.invoke('disconnect-bluetooth', bt_SerialNumber)
     if (result) {
       console.log('Bluetooth is disconnect successfully')
     } else {

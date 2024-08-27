@@ -20,14 +20,6 @@ watch(dualsenseId, (newSerialNumber) => {
   }
 })
 
-const handleSetStepSuccess = () => {
-  stepStore.setStepSuccess()
-}
-
-const handleSetStepFail = () => {
-  stepStore.setStepFail()
-}
-
 </script>
 
 <template>
@@ -38,11 +30,6 @@ const handleSetStepFail = () => {
       <div class="flex flex-col gap-3 items-start">
         <ConnectPanel />
         <StepsPanel v-if="currentSession?.isActive || isConnected" />
-        <!-- for test -->
-        <div class="button-container" v-if="currentSession?.isActive">
-          <button @click="handleSetStepSuccess">Set Step Success</button>
-          <button @click="handleSetStepFail">Set Step Fail</button>
-        </div>
         <div class="dou-sc-container space-y-2 self-start w-full legende h-full" v-if="currentSession?.isActive">
           <div v-if="currentStep?.id === 2">
             <h2 class="warning">⚠️ Warning: Unplugging the USB cable will cause this step to fail!</h2>

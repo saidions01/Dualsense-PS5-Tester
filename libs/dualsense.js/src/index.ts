@@ -84,6 +84,10 @@ export class DualSense extends EventEmitter {
         const device = new this.HID.HID(deviceInfo.path);
         this[PROPERTY_DEVICE] = device
         this.serialNumber = deviceInfo.serialNumber
+
+        console.log("--------- checkGrantedController --------------")
+        console.log(this.serialNumber)
+        console.log("-----------------------------------------------")
         this.#checkConnectInterface(deviceInfo)
         this[PROPERTY_DEVICE].on('data', this.#handleControllerReport.bind(this))
         this[PROPERTY_DEVICE].on('error', this.#onConnectionError.bind(this))
@@ -115,13 +119,17 @@ export class DualSense extends EventEmitter {
       const deviceInfo = this.HID.devices().find((device: any) => device.vendorId === VENDOR_ID_SONY && device.productId === PRODUCT_ID_DUAL_SENSE);
       if (deviceInfo && deviceInfo.path) {
 
-        console.log("--------- checkGrantedController --------------")
+        console.log("--------- requestDevice --------------")
         console.log(deviceInfo)
-        console.log("-----------------------------------------------")
+        console.log("---------------------------------------")
 
         const device = new this.HID.HID(deviceInfo.path);
         this[PROPERTY_DEVICE] = device
         this.serialNumber = deviceInfo.serialNumber
+
+        console.log("--------- requestDevice --------------")
+        console.log(this.serialNumber)
+        console.log("--------------------------------------")
         this.#checkConnectInterface(deviceInfo)
         this[PROPERTY_DEVICE].on('data', this.#handleControllerReport.bind(this))
         this[PROPERTY_DEVICE].on('error', this.#onConnectionError.bind(this))

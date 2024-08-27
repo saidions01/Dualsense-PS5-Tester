@@ -41,9 +41,10 @@ export const useDualSenseStore = defineStore('dualsense', () => {
     window.electron?.sendOutputReport(JSON.parse(JSON.stringify(newOutput)))
   }
 
-  window.electron?.receive('ds-connected', () => {
+  window.electron?.receive('ds-connected', async () => {
+    const _ds = await window.electron?.getDualSense()
     isConnected.value = true
-    dualsenseId.value = dualsense.value.serialNumber || `DS00001`
+    dualsenseId.value = _ds.serialNumber || `DS-DEFAULT`
   })
 
   window.electron?.receive('ds-disconnected', () => {

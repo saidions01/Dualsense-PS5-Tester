@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { ref, onMounted, defineEmits, watch } from 'vue'
+import { ref, onMounted, defineEmits, watch, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia';
 import { useDualSenseStore } from '@/store/dualsense'
+import { useStepStore } from '@/store/step';
 
 const dualsenseStore = useDualSenseStore()
 const { isConnected, state } = storeToRefs(dualsenseStore)
+const stepStore = useStepStore()
+const { currentSession } = storeToRefs(stepStore)
+
 const checkResult = ref<string | null>(null)
 const emit = defineEmits(['checkResult'])
 
@@ -25,7 +29,7 @@ const performCheck = () => {
 }
 
 // Start scan bluetooth and try to conenct
-setTimeout(() => (window as any).electron?.connectBluetooth("BC:C7:46:3C:59:91"), 500);
+setTimeout(() => (window as any).electron?.connectBluetooth(currentSession.value?.deviceSerialNumber), 500);
 
 watch(
   () => isConnected.value,
@@ -45,6 +49,11 @@ watch(
 
 onMounted(() => {
   performCheck()
+})
+
+onUnmounted(() => {
+  // Disconnect bluetooth
+  setTimeout(() => (window as any).electron?.disconnectBluetooth(currentSession.value?.deviceSerialNumber), 1500); // After 1.5 sec disconnect and remove device from bluetooth
 })
 </script>
 

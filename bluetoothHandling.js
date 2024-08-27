@@ -35,6 +35,13 @@ const runBluetoothctlCommand = (commands) => {
   });
 };
 
+// Function to reset the Bluetooth adapter
+const resetBluetoothAdapter = async () => {
+  await runBluetoothctlCommand(['power off']);
+  await new Promise(resolve => setTimeout(resolve, 1000)); // Small delay
+  await runBluetoothctlCommand(['power on']);
+};
+
 // Function to scan for a specific MAC address
 const scanForDevice = (macAddress, timeout = 60000) => {
   return new Promise((resolve, reject) => {
@@ -42,10 +49,10 @@ const scanForDevice = (macAddress, timeout = 60000) => {
     let deviceFound = false;
 
     bluetoothctl.stdout.on('data', (data) => {
-      const output = data.toString();
+      const output = data.toString().toLowerCase();
       console.log(`bluetoothctl: ${output}`);
 
-      if (output.includes(macAddress)) {
+      if (output.includes(macAddress.toLowerCase())) {
         console.log(`Device ${macAddress} found!`);
         deviceFound = true;
         bluetoothctl.stdin.write('scan off\n');
@@ -87,15 +94,18 @@ const connectBluetoothDevice = async (macAddress) => {
   try {
     console.log('Starting Bluetooth setup...');
 
+    // Reset Bluetooth adapter before attempting to connect
+    await resetBluetoothAdapter();
+
     const deviceFound = await scanForDevice(macAddress);
 
     if (deviceFound) {
+      console.log('Device found, proceeding with pairing and connecting...');
       const commands = [
         `pair ${macAddress}`,
         `trust ${macAddress}`,
         `connect ${macAddress}`
       ];
-
       await runBluetoothctlCommand(commands);
       console.log('Device paired, trusted, and connected successfully!');
     } else {
@@ -117,6 +127,10 @@ const disconnectBluetoothDevice = async (macAddress) => {
     await runBluetoothctlCommand([`remove ${macAddress}`]);
 
     console.log('DualSense controller disconnected and removed successfully!');
+
+    // Optionally reset Bluetooth adapter after removal
+    await resetBluetoothAdapter();
+
   } catch (error) {
     console.error('Failed to disconnect and remove DualSense controller:', error);
   }
